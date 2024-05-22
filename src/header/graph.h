@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <fstream>
 #include "app.h"
 
 using namespace std;
@@ -20,12 +21,13 @@ namespace gr {
   template <typename T>
   struct Vertex {
     unsigned int id;
+    int degree;
     T data;
     Vertex<T> *next = nullptr;
     Vertex<T> *prev = nullptr;
     Edge<T> *edgeList = nullptr;
 
-    Vertex(T data, unsigned int id) : data(data), id(id) {}
+    Vertex(T data, unsigned int id) : data(data), id(id), degree(0) {}
     ~Vertex() {
       if (edgeList != nullptr) {
         Edge<T> *toDelete = edgeList;
@@ -52,6 +54,7 @@ namespace gr {
     bool addEdgeByVertex(Vertex<T> *vertex) {
       if (edgeList == nullptr) {
         edgeList = new Edge<T>(vertex);
+        degree++;
         return true;
       }
 
@@ -60,13 +63,8 @@ namespace gr {
       edgeList->prev = newEdge;
       edgeList = newEdge;
       newEdge->prev = nullptr;
+      degree++;
       return true;
-    }
-
-    bool addEdgeByVertexId(unsigned int id) {
-      Vertex<T> *vertex = searchEdgeById(id);
-      if (vertex == nullptr) return false;
-      return addEdgeByVertex(vertex);
     }
 
     bool deleteEdge(Edge<T> *edge) {
@@ -93,26 +91,35 @@ namespace gr {
   public:
     Vertex<T> *vertices;
     int vertexCount;
-    int edgeCount;
     string filePath;
 
-    Graph() : vertices(nullptr), vertexCount(0), edgeCount(0) {}
-    Graph(string filePath) : vertices(nullptr), vertexCount(0), edgeCount(0), filePath(filePath) {}
+    Graph() : vertices(nullptr), vertexCount(0), filePath("") {}
+    Graph(string filePath) : vertices(nullptr), vertexCount(0), filePath(filePath) {
+      // if (filePath != "") loadFromBin();
+    }
 
-    ~Graph() {}
+    ~Graph() {
+      // saveToBin();
+      if (vertices != nullptr) {
+        Vertex<T> *current = vertices;
+        while (current != nullptr) {
+          Vertex<T> *toDelete = current;
+          current = current->next;
+          delete toDelete;
+        }
+      }
+    }
 
     bool isEmpty() { return vertices == nullptr; }
 
     bool addVertex(Vertex<T> *newVertex) {
       if (isEmpty()) {
         vertices = newVertex;
-        vertexCount++;
-        return true;
+      } else {
+        newVertex->next = vertices;
+        vertices->prev = newVertex;
+        vertices = newVertex;
       }
-
-      newVertex->next = vertices;
-      vertices->prev = newVertex;
-      vertices = newVertex;
       vertexCount++;
       return true;
     }
@@ -189,5 +196,79 @@ namespace gr {
         current = current->next;
       }
     }
+
+    bool saveToBin(string filePath = "") {
+      if (filePath == "") {
+        filePath = this->filePath;
+      }
+
+      ofstream ofs(filePath, ios::binary | ios::out | ios::trunc);
+      if (!ofs.is_open()) {
+        return false;
+      }
+
+      ofs.write(reinterpret_cast<char *>(&vertexCount), sizeof(vertexCount));
+
+      Vertex<T> *currentVertex = vertices;
+      while (currentVertex != nullptr) {
+        ofs.write(reinterpret_cast<char *>(&currentVertex->id), sizeof(currentVertex->id));
+        ofs.write(reinterpret_cast<char *>(&currentVertex->degree), sizeof(currentVertex->degree));
+        ofs.write(reinterpret_cast<char *>(&currentVertex->data), sizeof(currentVertex->data));
+
+        currentVertex = currentVertex->next;
+      }
+
+      currentVertex = vertices;
+      while (currentVertex != nullptr) {
+        Edge<T> *currentEdge = currentVertex->edgeList;
+        while (currentEdge != nullptr) {
+          ofs.write(reinterpret_cast<char *>(&currentEdge->vertexRef->id), sizeof(currentEdge->vertexRef->id));
+          currentEdge = currentEdge->next;
+        }
+        currentVertex = currentVertex->next;
+      }
+
+      ofs.close();
+      return true;
+    }
+
+    bool loadFromBin(string filePath = "") {
+      if (filePath == "") {
+        filePath = this->filePath;
+      }
+
+      ifstream ifs(filePath, ios::binary);
+      if (!ifs.is_open()) {
+        return false;
+      }
+
+      int vertexCount;
+      ifs.read(reinterpret_cast<char *>(&vertexCount), sizeof(vertexCount));
+      this->vertexCount = vertexCount;
+
+      for (int i = 0; i < vertexCount; ++i) {
+        unsigned int id;
+        ifs.read(reinterpret_cast<char *>(&id), sizeof(id));
+
+        T data;
+        ifs.read(reinterpret_cast<char *>(&data), sizeof(data));
+
+        Vertex<T> *newVertex = new Vertex<T>(data, id);
+        addVertex(newVertex);
+      }
+
+      Vertex<T> *currentVertex = vertices;
+      while (currentVertex != nullptr) {
+        unsigned int id;
+        ifs.read(reinterpret_cast<char *>(&id), sizeof(id));
+        addEdgeById(currentVertex->id, id);
+        currentVertex = currentVertex->next;
+      }
+      
+
+      ifs.close();
+      return true;
+    }
+
   };
 }
