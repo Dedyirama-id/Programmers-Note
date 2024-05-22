@@ -2,7 +2,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "utils.h"
 
 using namespace std;
 
@@ -13,7 +12,7 @@ namespace ll {
     T data;
     Node<T> *next;
     Node<T> *prev;
-    Node(T data) : data(data), next(nullptr), prev(nullptr) {}
+    Node(T data) : data(data), id(0), next(nullptr), prev(nullptr) {}
   };
 
   template <typename T>
@@ -22,6 +21,8 @@ namespace ll {
     Node<T> *tail;
 
   public:
+    int count = 0;
+
     LinkedList() : head(nullptr), tail(nullptr) {}
 
     ~LinkedList() {
@@ -36,7 +37,14 @@ namespace ll {
     Node<T> *getHead() { return head; }
     Node<T> *getTail() { return tail; }
 
+    bool isEmpty() { return head == nullptr; }
+
     bool addBack(Node<T> *newNode) {
+      if (newNode == nullptr) {
+        return false;
+      }
+
+      count++;
       if (head == nullptr) {
         head = newNode;
         tail = newNode;
@@ -54,6 +62,11 @@ namespace ll {
     }
 
     bool addFront(Node<T> *newNode) {
+      if (newNode == nullptr) {
+        return false;
+      }
+
+      count++;
       if (head == nullptr) {
         head = newNode;
         tail = newNode;
@@ -74,6 +87,8 @@ namespace ll {
       if (head == nullptr) {
         return false;
       }
+
+      count--;
       if (head == tail) {
         delete head;
         head = nullptr;
@@ -90,6 +105,8 @@ namespace ll {
       if (head == nullptr) {
         return false;
       }
+
+      count--;
       if (head == tail) {
         delete head;
         head = nullptr;
