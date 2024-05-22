@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "app.h"
+#include "../app/app.h"
 
 using namespace std;
 
@@ -75,6 +75,8 @@ namespace gr {
       if (edge->next != nullptr) {
         edge->next->prev = edge->prev;
       }
+
+      degree--;
       delete edge;
       return true;
     }
@@ -91,15 +93,10 @@ namespace gr {
   public:
     Vertex<T> *vertices;
     int vertexCount;
-    string filePath;
 
-    Graph() : vertices(nullptr), vertexCount(0), filePath("") {}
-    Graph(string filePath) : vertices(nullptr), vertexCount(0), filePath(filePath) {
-      // if (filePath != "") loadFromBin();
-    }
+    Graph() : vertices(nullptr), vertexCount(0) {}
 
     ~Graph() {
-      // saveToBin();
       if (vertices != nullptr) {
         Vertex<T> *current = vertices;
         while (current != nullptr) {
@@ -156,12 +153,11 @@ namespace gr {
       if (vertex == nullptr) return false;
       if (vertex->edgeList != nullptr) destroyRelationshipToVertex(vertex->id);
 
-      if (vertex->prev != nullptr) {
-        vertex->prev->next = vertex->next;
-      }
-      if (vertex->next != nullptr) {
-        vertex->next->prev = vertex->prev;
-      }
+      if (vertex->prev != nullptr) vertex->prev->next = vertex->next;
+      if (vertex->next != nullptr) vertex->next->prev = vertex->prev;
+      if (vertex == vertices) vertices = vertices->next;
+
+      vertexCount--;
       delete vertex;
       return true;
     }
@@ -196,79 +192,5 @@ namespace gr {
         current = current->next;
       }
     }
-
-    bool saveToBin(string filePath = "") {
-      if (filePath == "") {
-        filePath = this->filePath;
-      }
-
-      ofstream ofs(filePath, ios::binary | ios::out | ios::trunc);
-      if (!ofs.is_open()) {
-        return false;
-      }
-
-      ofs.write(reinterpret_cast<char *>(&vertexCount), sizeof(vertexCount));
-
-      Vertex<T> *currentVertex = vertices;
-      while (currentVertex != nullptr) {
-        ofs.write(reinterpret_cast<char *>(&currentVertex->id), sizeof(currentVertex->id));
-        ofs.write(reinterpret_cast<char *>(&currentVertex->degree), sizeof(currentVertex->degree));
-        ofs.write(reinterpret_cast<char *>(&currentVertex->data), sizeof(currentVertex->data));
-
-        currentVertex = currentVertex->next;
-      }
-
-      currentVertex = vertices;
-      while (currentVertex != nullptr) {
-        Edge<T> *currentEdge = currentVertex->edgeList;
-        while (currentEdge != nullptr) {
-          ofs.write(reinterpret_cast<char *>(&currentEdge->vertexRef->id), sizeof(currentEdge->vertexRef->id));
-          currentEdge = currentEdge->next;
-        }
-        currentVertex = currentVertex->next;
-      }
-
-      ofs.close();
-      return true;
-    }
-
-    bool loadFromBin(string filePath = "") {
-      if (filePath == "") {
-        filePath = this->filePath;
-      }
-
-      ifstream ifs(filePath, ios::binary);
-      if (!ifs.is_open()) {
-        return false;
-      }
-
-      int vertexCount;
-      ifs.read(reinterpret_cast<char *>(&vertexCount), sizeof(vertexCount));
-      this->vertexCount = vertexCount;
-
-      for (int i = 0; i < vertexCount; ++i) {
-        unsigned int id;
-        ifs.read(reinterpret_cast<char *>(&id), sizeof(id));
-
-        T data;
-        ifs.read(reinterpret_cast<char *>(&data), sizeof(data));
-
-        Vertex<T> *newVertex = new Vertex<T>(data, id);
-        addVertex(newVertex);
-      }
-
-      Vertex<T> *currentVertex = vertices;
-      while (currentVertex != nullptr) {
-        unsigned int id;
-        ifs.read(reinterpret_cast<char *>(&id), sizeof(id));
-        addEdgeById(currentVertex->id, id);
-        currentVertex = currentVertex->next;
-      }
-      
-
-      ifs.close();
-      return true;
-    }
-
   };
 }

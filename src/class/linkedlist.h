@@ -12,6 +12,7 @@ namespace ll {
     T data;
     Node<T> *next;
     Node<T> *prev;
+    Node() : data(T()), id(0), next(nullptr), prev(nullptr) {}
     Node(T data) : data(data), id(0), next(nullptr), prev(nullptr) {}
   };
 
@@ -19,15 +20,11 @@ namespace ll {
   class LinkedList {
     Node<T> *head;
     Node<T> *tail;
-    string fileSavePath;
 
   public:
     int count = 0;
 
-    LinkedList() : head(nullptr), tail(nullptr), fileSavePath("linkedlist_data.bin") {}
-    LinkedList(string fileSavePath) : head(nullptr), tail(nullptr), fileSavePath(fileSavePath) {
-      if (fileSavePath != "") loadFromBin();
-    }
+    LinkedList() : head(nullptr), tail(nullptr) {}
 
     ~LinkedList() {
       Node<T> *current = head;
@@ -146,25 +143,34 @@ namespace ll {
     }
 
     bool deleteByPtr(Node<T> *toDelete) {
+      if (toDelete == nullptr || head == nullptr) {
+        return false;
+      } 
+
       if (toDelete == head && toDelete == tail) {
         delete head;
         head = nullptr;
         tail = nullptr;
+        count--;
         return true;
       } else if (toDelete == head) {
         head = head->next;
         head->prev = nullptr;
         delete toDelete;
+        count--;
         return true;
       } else if (toDelete == tail) {
         tail = tail->prev;
         tail->next = nullptr;
         delete toDelete;
+        count--;
         return true;
       }
 
       toDelete->prev->next = toDelete->next;
       toDelete->next->prev = toDelete->prev;
+
+      count--;
       delete toDelete;
       return true;
     }
@@ -192,56 +198,6 @@ namespace ll {
         current = current->next;
       }
       cout << tail->data << endl;
-    }
-
-    bool saveToBin(string filePath = "") {
-      if (filePath.empty()) {
-        filePath = fileSavePath;
-      }
-      ofstream file(filePath, ios::out | ios::binary | ios::trunc);
-      if (!file.is_open()) {
-        return false;
-      }
-      
-      Node<T> *current = head;
-      while (current != nullptr) {
-        file.write((char *)&current->id, sizeof(unsigned int));
-        file.write((char *)&current->data, sizeof(T));
-        current = current->next;
-      }
-      file.close();
-      return true;
-    }
-
-    bool loadFromBin(string filePath = "") {
-      if (filePath.empty()) {
-        filePath = fileSavePath;
-      }
-      ifstream file(filePath, ios::in | ios::binary);
-      if (!file.is_open()) {
-        return false;
-      }
-
-      Node<T> *current = head;
-      while (current != nullptr) {
-        Node<T> *toDelete = current;
-        current = current->next;
-        delete toDelete;
-      }
-      head = nullptr;
-      tail = nullptr;
-      count = 0;
-
-      unsigned int id;
-      T data;
-      while (file.read((char *)&id, sizeof(unsigned int))) {
-        file.read((char *)&data, sizeof(T));
-        Node<T> *newNode = new Node<T>(data);
-        newNode->id = id;
-        addBack(newNode);
-      }
-      file.close();
-      return true;
     }
   };
 }

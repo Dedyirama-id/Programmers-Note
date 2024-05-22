@@ -46,7 +46,19 @@
     "typeinfo": "cpp",
     "list": "cpp",
     "map": "cpp",
-    "ctime": "cpp"
+    "ctime": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "condition_variable": "cpp",
+    "optional": "cpp",
+    "ratio": "cpp",
+    "regex": "cpp",
+    "set": "cpp",
+    "string_view": "cpp",
+    "future": "cpp",
+    "iomanip": "cpp",
+    "mutex": "cpp",
+    "thread": "cpp"
   },
   "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\g++.exe"
 }

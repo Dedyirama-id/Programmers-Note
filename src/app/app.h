@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
 #include <conio.h>
-#include "color_styles.h"
+#include "../styles/color_styles.h"
 
 using namespace std;
 
