@@ -19,11 +19,15 @@ namespace ll {
   class LinkedList {
     Node<T> *head;
     Node<T> *tail;
+    string fileSavePath;
 
   public:
     int count = 0;
 
-    LinkedList() : head(nullptr), tail(nullptr) {}
+    LinkedList() : head(nullptr), tail(nullptr), fileSavePath("linkedlist_data.bin") {}
+    LinkedList(string fileSavePath) : head(nullptr), tail(nullptr), fileSavePath(fileSavePath) {
+      if (fileSavePath != "") loadFromBin();
+    }
 
     ~LinkedList() {
       Node<T> *current = head;
@@ -188,6 +192,56 @@ namespace ll {
         current = current->next;
       }
       cout << tail->data << endl;
+    }
+
+    bool saveToBin(string filePath = "") {
+      if (filePath.empty()) {
+        filePath = fileSavePath;
+      }
+      ofstream file(filePath, ios::out | ios::binary | ios::trunc);
+      if (!file.is_open()) {
+        return false;
+      }
+      
+      Node<T> *current = head;
+      while (current != nullptr) {
+        file.write((char *)&current->id, sizeof(unsigned int));
+        file.write((char *)&current->data, sizeof(T));
+        current = current->next;
+      }
+      file.close();
+      return true;
+    }
+
+    bool loadFromBin(string filePath = "") {
+      if (filePath.empty()) {
+        filePath = fileSavePath;
+      }
+      ifstream file(filePath, ios::in | ios::binary);
+      if (!file.is_open()) {
+        return false;
+      }
+
+      Node<T> *current = head;
+      while (current != nullptr) {
+        Node<T> *toDelete = current;
+        current = current->next;
+        delete toDelete;
+      }
+      head = nullptr;
+      tail = nullptr;
+      count = 0;
+
+      unsigned int id;
+      T data;
+      while (file.read((char *)&id, sizeof(unsigned int))) {
+        file.read((char *)&data, sizeof(T));
+        Node<T> *newNode = new Node<T>(data);
+        newNode->id = id;
+        addBack(newNode);
+      }
+      file.close();
+      return true;
     }
   };
 }

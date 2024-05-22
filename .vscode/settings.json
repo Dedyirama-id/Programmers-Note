@@ -47,5 +47,6 @@
     "list": "cpp",
     "map": "cpp",
     "ctime": "cpp"
-  }
+  },
+  "C_Cpp.default.compilerPath": "C:\\MinGW\\bin\\g++.exe"
 }
