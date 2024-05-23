@@ -209,7 +209,7 @@ namespace tr {
     void saveToBin(const string &filename) const {
       ofstream outFile(filename, ios::binary);
       if (!outFile) {
-        cerr << "Could not open file for writing: " << filename << endl;
+        throw runtime_error("Unable to open file for reading: " + filename);
         return;
       }
       saveToBinHelper(outFile, root);
@@ -219,7 +219,7 @@ namespace tr {
     void loadFromBin(const string &filename) {
       ifstream inFile(filename, ios::binary);
       if (!inFile) {
-        cerr << "Could not open file for reading: " << filename << endl;
+        throw runtime_error("Unable to open file for reading: " + filename);
         return;
       }
       root = loadFromBinHelper(inFile);

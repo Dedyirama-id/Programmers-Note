@@ -214,7 +214,7 @@ namespace gr {
     bool saveToBin(string filePath) {
       ofstream outFile(filePath, ios::binary | ios::trunc);
       if (!outFile) {
-        cerr << "Error opening file for writing" << endl;
+        throw runtime_error("Unable to open file for writing" + filePath);
         return false;
       }
 
@@ -247,7 +247,7 @@ namespace gr {
     bool loadFromBin(string filePath) {
       ifstream inFile(filePath, ios::binary);
       if (!inFile) {
-        cerr << "Error opening file for reading" << endl;
+        throw runtime_error("Unable to open file for reading" + filePath);
         return false;
       }
 

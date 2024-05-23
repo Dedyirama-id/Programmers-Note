@@ -105,5 +105,42 @@ namespace ml {
 
       return nullptr;
     }
+
+    // Save to binary file
+    void saveToBin(const string &filename) const {
+      ofstream outFile(filename, ios::binary);
+      if (!outFile) {
+        throw runtime_error("Unable to open file for writing" + filename);
+      }
+
+      outFile.write(reinterpret_cast<const char *>(&capacity), sizeof(capacity));
+      outFile.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+      for (int i = 0; i < capacity; ++i) {
+        outFile.write(reinterpret_cast<const char *>(&table[i]), sizeof(T));
+      }
+
+      outFile.close();
+    }
+
+    // Load from binary file
+    void loadFromBin(const string &filename) {
+      ifstream inFile(filename, ios::binary);
+      if (!inFile) {
+        throw runtime_error("Unable to open file for reading: " + filename);
+      }
+
+      inFile.read(reinterpret_cast<char *>(&capacity), sizeof(capacity));
+      inFile.read(reinterpret_cast<char *>(&size), sizeof(size));
+
+      delete[] table;
+      table = new T[capacity];
+
+      for (int i = 0; i < capacity; ++i) {
+        inFile.read(reinterpret_cast<char *>(&table[i]), sizeof(T));
+      }
+
+      inFile.close();
+    }
   };
 }
