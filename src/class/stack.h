@@ -30,11 +30,11 @@ namespace st {
       return this->removeFront();
     }
 
-    bool saveToBin(const std::string &filename) {
+    bool saveToBin(const string &filename) {
       return LinkedList<T>::saveToBin(filename);
     }
 
-    bool loadFromBin(const std::string &filename) {
+    bool loadFromBin(const string &filename) {
       return LinkedList<T>::loadFromBin(filename);
     }
   };
