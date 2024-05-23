@@ -14,6 +14,10 @@ namespace qu {
     Queue() : LinkedList<T>() {}
     ~Queue() {}
 
+    bool destroyAll() {
+      return LinkedList<T>::destroyAll();
+    }
+
     T peek() {
       return this->getHead()->data;
     }

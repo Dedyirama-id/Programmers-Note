@@ -14,6 +14,10 @@ namespace st {
     Stack() : LinkedList<T>() {}
     ~Stack() {}
 
+    bool destroyAll() {
+      return LinkedList<T>::destroyAll();
+    }
+
     T peek() {
       return this->getHead()->data;
     }
