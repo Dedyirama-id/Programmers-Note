@@ -28,7 +28,6 @@ int main(int argc, char const *argv[])
     app::printError("Unknown command: " + arg.key);
     app::printWarning("Type 'help' for help!");
   }
-  
 
   return 0;
 }
