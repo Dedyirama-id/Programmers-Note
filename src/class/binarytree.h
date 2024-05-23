@@ -155,10 +155,32 @@ namespace tr {
       return nullptr;
     }
 
+    bool destroyAll(Node<T> *node) {
+      if (node == nullptr) {
+        return true;
+      }
+      bool leftDestroyed = destroyAll(node->left);
+      bool rightDestroyed = destroyAll(node->right);
+      delete node;
+      node = nullptr;
+      return leftDestroyed && rightDestroyed;
+    }
+
   public:
     BinaryTree() : root(nullptr) {}
 
+    ~BinaryTree() {
+      destroyAll();
+    }
+
     Node<T> *getRoot() { return root; }
+
+    bool destroyAll() {
+      bool allDestroyed = destroyAll(root);
+      root = nullptr; 
+      return allDestroyed;
+    }
+
 
     Node<T> *findPosition(unsigned int id) {
       if (root == nullptr) {
@@ -222,6 +244,8 @@ namespace tr {
         throw runtime_error("Unable to open file for reading: " + filename);
         return;
       }
+
+      destroyAll();
       root = loadFromBinHelper(inFile);
       inFile.close();
     }
