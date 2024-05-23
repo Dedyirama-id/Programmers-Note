@@ -197,7 +197,7 @@ namespace gr {
     void displayGraph() {
       Vertex<T> *current = verticesHead;
       while (current != nullptr) {
-        cout << "[" << current->id << "] " << current->data.name << " -> ";
+        cout << "[" << current->id << "] " << " -> ";
         Edge<T> *currentEdge = current->edgeList;
         while (currentEdge != nullptr) {
           cout << currentEdge->vertexRef->id;
@@ -224,7 +224,8 @@ namespace gr {
       while (current != nullptr) {
         outFile.write(reinterpret_cast<char *>(&current->id), sizeof(current->id));
         outFile.write(reinterpret_cast<char *>(&current->degree), sizeof(current->degree));
-        current->data.serialize(outFile);
+        // current->data.serialize(outFile);
+        outFile.write(reinterpret_cast<char *>(&current->data), sizeof(current->data));
         current = current->next;
       }
 
@@ -262,7 +263,8 @@ namespace gr {
 
         inFile.read(reinterpret_cast<char *>(&id), sizeof(id));
         inFile.read(reinterpret_cast<char *>(&degree), sizeof(degree));
-        data.deserialize(inFile);
+        // data.deserialize(inFile);
+        inFile.read(reinterpret_cast<char *>(&data), sizeof(data));
 
         Vertex<T> *newVertex = new Vertex<T>(data, id, degree);
         addVertex(newVertex);
