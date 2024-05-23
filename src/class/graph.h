@@ -26,8 +26,8 @@ namespace gr {
     Vertex<T> *prev = nullptr;
     Edge<T> *edgeList = nullptr;
 
-    Vertex(T data, unsigned int id) : data(data), id(id), degree(0) {}
-    Vertex(T data, unsigned int id, int degree) : data(data), id(id), degree(degree) {}
+    Vertex(unsigned int id, T data) : id(id), data(data), degree(0) {}
+    Vertex(unsigned int id, T data, int degree) : id(id), data(data), degree(degree) {}
     ~Vertex() {
       if (edgeList != nullptr) {
         Edge<T> *toDelete = edgeList;
@@ -126,8 +126,8 @@ namespace gr {
       return true;
     }
 
-    bool addVertex(T data, unsigned int id) {
-      Vertex<T> *newVertex = new Vertex<T>(data, id);
+    bool addVertex(unsigned int id, T data) {
+      Vertex<T> *newVertex = new Vertex<T>(id, data);
       return addVertex(newVertex);
     }
 
@@ -266,7 +266,7 @@ namespace gr {
         // data.deserialize(inFile);
         inFile.read(reinterpret_cast<char *>(&data), sizeof(data));
 
-        Vertex<T> *newVertex = new Vertex<T>(data, id, degree);
+        Vertex<T> *newVertex = new Vertex<T>(id, data, degree);
         addVertex(newVertex);
       }
 
