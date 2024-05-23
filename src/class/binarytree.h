@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <fstream>
 
 using namespace std;
 
@@ -94,7 +95,7 @@ namespace tr {
         return;
       }
       inOrderTraversalHelper(node->left);
-      std::cout << node->id << ": " << node->data << " ";
+      cout << "[" << node->id << "] ";
       inOrderTraversalHelper(node->right);
     }
 
@@ -102,7 +103,7 @@ namespace tr {
       if (node == nullptr) {
         return;
       }
-      std::cout << node->id << ": " << node->data << " ";
+      cout << "[" << node->id << "] ";
       preOrderTraversalHelper(node->left);
       preOrderTraversalHelper(node->right);
     }
@@ -113,7 +114,45 @@ namespace tr {
       }
       postOrderTraversalHelper(node->left);
       postOrderTraversalHelper(node->right);
-      std::cout << node->id << ": " << node->data << " ";
+      cout << "[" << node->id << "] ";
+    }
+
+    void saveToBinHelper(ofstream &outFile, Node<T> *node) const {
+      if (node == nullptr) {
+        return;
+      }
+      outFile.write(reinterpret_cast<char *>(&node->id), sizeof(node->id));
+      outFile.write(reinterpret_cast<char *>(&node->data), sizeof(node->data));
+      bool hasLeft = (node->left != nullptr);
+      bool hasRight = (node->right != nullptr);
+      outFile.write(reinterpret_cast<char *>(&hasLeft), sizeof(hasLeft));
+      outFile.write(reinterpret_cast<char *>(&hasRight), sizeof(hasRight));
+      if (hasLeft) {
+        saveToBinHelper(outFile, node->left);
+      }
+      if (hasRight) {
+        saveToBinHelper(outFile, node->right);
+      }
+    }
+
+    Node<T> *loadFromBinHelper(ifstream &inFile) {
+      unsigned int id;
+      T data;
+      bool hasLeft, hasRight;
+      if (inFile.read(reinterpret_cast<char *>(&id), sizeof(id))) {
+        inFile.read(reinterpret_cast<char *>(&data), sizeof(data));
+        Node<T> *node = new Node<T>(id, data);
+        inFile.read(reinterpret_cast<char *>(&hasLeft), sizeof(hasLeft));
+        inFile.read(reinterpret_cast<char *>(&hasRight), sizeof(hasRight));
+        if (hasLeft) {
+          node->left = loadFromBinHelper(inFile);
+        }
+        if (hasRight) {
+          node->right = loadFromBinHelper(inFile);
+        }
+        return node;
+      }
+      return nullptr;
     }
 
   public:
@@ -165,6 +204,26 @@ namespace tr {
 
     void deleteNode(unsigned int id) {
       root = deleteNodeHelper(root, id);
+    }
+
+    void saveToBin(const string &filename) const {
+      ofstream outFile(filename, ios::binary);
+      if (!outFile) {
+        cerr << "Could not open file for writing: " << filename << endl;
+        return;
+      }
+      saveToBinHelper(outFile, root);
+      outFile.close();
+    }
+
+    void loadFromBin(const string &filename) {
+      ifstream inFile(filename, ios::binary);
+      if (!inFile) {
+        cerr << "Could not open file for reading: " << filename << endl;
+        return;
+      }
+      root = loadFromBinHelper(inFile);
+      inFile.close();
     }
   };
 }
