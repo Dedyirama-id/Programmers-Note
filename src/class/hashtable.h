@@ -86,7 +86,7 @@ namespace ml {
         }
         index = (index + 1) % capacity;
         if (index == startIndex) {
-          break; // Prevent infinite loop
+          break;
         }
       }
 
@@ -103,14 +103,13 @@ namespace ml {
         }
         index = (index + 1) % capacity;
         if (index == startIndex) {
-          break; // Prevent infinite loop
+          break;
         }
       }
 
       return nullptr;
     }
 
-    // Save to binary file
     void saveToBin(const string &filename) const {
       ofstream outFile(filename, ios::binary);
       if (!outFile) {
@@ -127,7 +126,6 @@ namespace ml {
       outFile.close();
     }
 
-    // Load from binary file
     void loadFromBin(const string &filename) {
       ifstream inFile(filename, ios::binary);
       if (!inFile) {

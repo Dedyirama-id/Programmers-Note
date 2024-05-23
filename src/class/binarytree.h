@@ -39,7 +39,7 @@ namespace tr {
           return findPositionHelper(node->right, id);
         }
       } else {
-        return nullptr; // id sudah ada di tree
+        return nullptr;
       }
     }
 
