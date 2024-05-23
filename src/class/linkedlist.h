@@ -27,18 +27,27 @@ namespace ll {
     LinkedList() : head(nullptr), tail(nullptr) {}
 
     ~LinkedList() {
-      Node<T> *current = head;
-      while (current != nullptr) {
-        Node<T> *toDelete = current;
-        current = current->next;
-        delete toDelete;
-      }
+      destroyAll();
     }
 
     Node<T> *getHead() { return head; }
     Node<T> *getTail() { return tail; }
 
     bool isEmpty() { return head == nullptr; }
+
+    bool destroyAll() {
+      Node<T> *current = head;
+      while (current != nullptr) {
+        Node<T> *toDelete = current;
+        current = current->next;
+        delete toDelete;
+      }
+
+      head = nullptr;
+      tail = nullptr;
+      count = 0;
+      return true;
+    }
 
     bool addBack(Node<T> *newNode) {
       if (newNode == nullptr) {
@@ -225,14 +234,7 @@ namespace ll {
         return false;
       }
 
-      // Clear existing elements in the list
-      while (head != nullptr) {
-        Node<T> *temp = head;
-        head = head->next;
-        delete temp;
-      }
-      tail = nullptr;
-      count = 0;
+      destroyAll();
 
       while (!file.eof()) {
         unsigned int id;
