@@ -3,7 +3,7 @@
 #include <limits>
 #include <string>
 #include <ctime>
-#include "color_styles.h"
+#include "../styles/color_styles.h"
 
 using namespace std;
 

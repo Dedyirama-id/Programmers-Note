@@ -2,6 +2,7 @@
 #include <iostream>
 #include <conio.h>
 #include "../styles/color_styles.h"
+#include "../functions/utils.h"
 
 using namespace std;
 
@@ -72,6 +73,24 @@ namespace app {
       for (int i = 0; i < menuList[0].length() + 2; i++) cout << " ";
       cout << endl;
       cout << "\033[" << menuSize << "A";
+    }
+  };
+
+  class SingleArg {
+  public:
+    string key = "";
+    string value = "";
+
+    SingleArg(int argc, char const *argv[]) {
+      if (argc > 1) {
+        key = argv[1];
+        key = u::toLowercase(key);
+
+        for (int i = 2; i < argc; i++) {
+          value += (i > 2 ? " " : "") + string(argv[i]);
+        }
+        toupper(value[0]);
+      }
     }
   };
 
