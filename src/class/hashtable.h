@@ -21,7 +21,7 @@ namespace ml {
     }
 
     ~HashTable() {
-      delete[] table;
+      destroyAll();
     }
 
   private:
@@ -48,11 +48,15 @@ namespace ml {
         }
       }
 
-      delete[] table;
+      destroyAll();
       table = newTable;
     }
 
   public:
+    destroyAll() {
+      delete[] table;
+    }
+
     void addRecord(const T &data) {
       if (size > capacity * MAX_SCALE) {
         rehash();
@@ -133,7 +137,7 @@ namespace ml {
       inFile.read(reinterpret_cast<char *>(&capacity), sizeof(capacity));
       inFile.read(reinterpret_cast<char *>(&size), sizeof(size));
 
-      delete[] table;
+      destroyAll();
       table = new T[capacity];
 
       for (int i = 0; i < capacity; ++i) {

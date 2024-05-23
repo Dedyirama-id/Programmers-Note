@@ -12,7 +12,9 @@ namespace st {
   class Stack : protected LinkedList<T> {
   public:
     Stack() : LinkedList<T>() {}
-    ~Stack() {}
+    ~Stack() {
+      destroyAll();
+    }
 
     bool destroyAll() {
       return LinkedList<T>::destroyAll();

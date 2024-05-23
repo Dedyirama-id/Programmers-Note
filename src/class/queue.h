@@ -12,7 +12,9 @@ namespace qu {
   class Queue : protected LinkedList<T> {
   public:
     Queue() : LinkedList<T>() {}
-    ~Queue() {}
+    ~Queue() {
+      destroyAll();
+    }
 
     bool destroyAll() {
       return LinkedList<T>::destroyAll();

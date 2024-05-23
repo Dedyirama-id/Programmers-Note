@@ -98,14 +98,7 @@ namespace gr {
     Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) {}
 
     ~Graph() {
-      if (verticesHead != nullptr) {
-        Vertex<T> *current = verticesHead;
-        while (current != nullptr) {
-          Vertex<T> *toDelete = current;
-          current = current->next;
-          delete toDelete;
-        }
-      }
+      destroyAllVertices();
     }
 
     Vertex<T> *getVerticesHead() const { return verticesHead; }
