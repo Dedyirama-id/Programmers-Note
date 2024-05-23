@@ -145,7 +145,7 @@ namespace ll {
     bool deleteByPtr(Node<T> *toDelete) {
       if (toDelete == nullptr || head == nullptr) {
         return false;
-      } 
+      }
 
       if (toDelete == head && toDelete == tail) {
         delete head;
@@ -198,6 +198,56 @@ namespace ll {
         current = current->next;
       }
       cout << tail->data << endl;
+    }
+
+    bool saveToBin(const std::string &filename) {
+      std::ofstream file(filename, std::ios::binary);
+      if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file for writing." << std::endl;
+        return false;
+      }
+
+      Node<T> *current = head;
+      while (current != nullptr) {
+        file.write(reinterpret_cast<const char *>(&current->id), sizeof(unsigned int));
+        file.write(reinterpret_cast<const char *>(&current->data), sizeof(T));
+        current = current->next;
+      }
+
+      file.close();
+      return true;
+    }
+
+    bool loadFromBin(const std::string &filename) {
+      std::ifstream file(filename, std::ios::binary);
+      if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file for reading." << std::endl;
+        return false;
+      }
+
+      // Clear existing elements in the list
+      while (head != nullptr) {
+        Node<T> *temp = head;
+        head = head->next;
+        delete temp;
+      }
+      tail = nullptr;
+      count = 0;
+
+      while (!file.eof()) {
+        unsigned int id;
+        T data;
+        file.read(reinterpret_cast<char *>(&id), sizeof(unsigned int));
+        file.read(reinterpret_cast<char *>(&data), sizeof(T));
+        if (!file.eof()) {
+          Node<T> *newNode = new Node<T>(data);
+          newNode->id = id;
+          addBack(newNode);
+        }
+      }
+
+      file.close();
+      return true;
     }
   };
 }
