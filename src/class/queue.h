@@ -29,5 +29,13 @@ namespace qu {
     bool dequeue() {
       return this->removeFront();
     }
+
+    bool saveToBin(const std::string &filename) {
+      return LinkedList<T>::saveToBin(filename);
+    }
+
+    bool loadFromBin(const std::string &filename) {
+      return LinkedList<T>::loadFromBin(filename);
+    }
   };
 }
