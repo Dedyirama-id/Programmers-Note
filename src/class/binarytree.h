@@ -214,14 +214,17 @@ namespace tr {
 
     void inOrderTraversal() const {
       inOrderTraversalHelper(root);
+      cout << endl;
     }
 
     void preOrderTraversal() const {
       preOrderTraversalHelper(root);
+      cout << endl;
     }
 
     void postOrderTraversal() const {
       postOrderTraversalHelper(root);
+      cout << endl;
     }
 
     void deleteNode(unsigned int id) {
