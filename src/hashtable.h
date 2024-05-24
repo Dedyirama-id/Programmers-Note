@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "../app/app.h"
+#include "app.h"
 #define EMPTY 0
 #define MAX_SCALE 0.7
 

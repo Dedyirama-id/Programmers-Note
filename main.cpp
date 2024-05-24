@@ -2,8 +2,8 @@
 #include <string>
 #include "src/hashtable.h"
 #include "src/data-type/account.h"
-#include "src/app/app.h"
-#include "src/functions/utils.h"
+#include "src/app.h"
+#include "src/utils.h"
 
 using namespace std;
 
@@ -14,33 +14,10 @@ Account *login();
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 
-
-
-
-
 int main() {
-  if (!accounts->loadFromBin("data/accounts.bin") || accounts->isEmpty()) {
-    app::printWarning("No accounts found. Creating new accounts!");
-    registerAccount();
-  }
-
-  Account *loggedInAccount = login();
-  if (loggedInAccount == nullptr) {
-    app::printError("Failed to log in. Exiting...");
-    delete accounts;
-    return 0;
-  }
-
-  app::printSuccess("Logged in as " + loggedInAccount->username);
-
-  accounts->saveToBin("data/accounts.bin");
-  delete accounts;
+  app::printCheckState();
   return 0;
 }
-
-
-
-
 
 void printHelp() {
   app::printH1("# Help");

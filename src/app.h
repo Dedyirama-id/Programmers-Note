@@ -1,8 +1,8 @@
 #pragma once
 #include <iostream>
 #include <conio.h>
-#include "../styles/color_styles.h"
-#include "../functions/utils.h"
+#include "color_styles.h"
+#include "utils.h"
 
 using namespace std;
 
