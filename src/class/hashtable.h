@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include "../app/app.h"
 #define EMPTY 0
 #define MAX_SCALE 0.7
 
@@ -59,8 +60,11 @@ namespace ht {
     }
 
   public:
-    destroyAll() {
+    void destroyAll() {
       delete[] table;
+      table = nullptr;
+      size = 0;
+      capacity = 0;
     }
 
     void addRecord(const T data) {
@@ -80,7 +84,7 @@ namespace ht {
       table[index] = data;
     }
 
-    void addRecord (T *data) {
+    void addRecord(T *data) {
       addRecord(*data);
     }
 
@@ -123,39 +127,59 @@ namespace ht {
     bool saveToBin(const string &filename) const {
       ofstream outFile(filename, ios::binary);
       if (!outFile) {
-        // throw runtime_error("Unable to open file for writing" + filename);
+        app::printError("Error: Unable to open file for writing: " + filename);
         return false;
       }
 
-      outFile.write(reinterpret_cast<const char *>(&capacity), sizeof(capacity));
       outFile.write(reinterpret_cast<const char *>(&size), sizeof(size));
 
       for (int i = 0; i < capacity; ++i) {
-        outFile.write(reinterpret_cast<const char *>(&table[i]), sizeof(T));
+        if (table[i].id != EMPTY) {
+          table[i].serialize(outFile);
+        }
       }
 
       outFile.close();
+      return true;
     }
 
     bool loadFromBin(const string &filename) {
       ifstream inFile(filename, ios::binary);
       if (!inFile) {
-        // throw runtime_error("Unable to open file for reading: " + filename);
         return false;
       }
 
-      inFile.read(reinterpret_cast<char *>(&capacity), sizeof(capacity));
-      inFile.read(reinterpret_cast<char *>(&size), sizeof(size));
+      int newSize;
+      inFile.read(reinterpret_cast<char *>(&newSize), sizeof(newSize));
+      size = newSize;
 
-      destroyAll();
-      table = new T[capacity];
+      if (table == nullptr) {
+        app::printError("Error: Failed to allocate memory for table");
+        return false;
+      }
 
+      // Inisialisasi tabel baru
       for (int i = 0; i < capacity; ++i) {
-        inFile.read(reinterpret_cast<char *>(&table[i]), sizeof(T));
+        table[i].id = EMPTY;
+      }
+
+      // Baca data dari file dan tambahkan ke tabel
+      for (int i = 0; i < newSize; ++i) {
+        T data;
+        data.deserialize(inFile);
+        addRecord(data);
       }
 
       inFile.close();
       return true;
+    }
+
+    void display() {
+      for (int i = 0; i < capacity; ++i) {
+        if (table[i].id != EMPTY) {
+          cout << table[i].id << " " << table[i].username << " " << table[i].password << endl;
+        }
+      }
     }
   };
 }
