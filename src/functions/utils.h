@@ -124,6 +124,23 @@ namespace u {
     };
   }
 
+  unsigned int getUnsignedIntInput(string text = "> ") {
+    unsigned int input;
+    while (true) {
+      cin.clear();
+      cout << text;
+      cin >> input;
+      if (cin.fail()) {
+        cout << YELLOW << "Input must be a number!" << RESET << endl;
+        cin.clear();
+        clearBuffer();
+      } else {
+        clearBuffer();
+        return input;
+      }
+    };
+  }
+
   long getLongInput(string text = "> ") {
     long input;
     while (true) {

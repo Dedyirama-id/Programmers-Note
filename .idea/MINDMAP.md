@@ -1,10 +1,13 @@
 # Features
+  - Login
+  - Logout
   - Menambahkan todo
   - Menghapus todo
   - Undo todo
   - Menambahkan notes
   - Menghapus notes
   - Undo notes
+  - Share notes
 
 # Implementation
   - Pointer           : untuk pointer linkedlist
@@ -22,6 +25,8 @@
   - Hash Table        : user account
 
 # Struktur Data
+  - Notes: Tree dengan id adalah judul notes. Node tree adalah sebuah berkas notes berisi teks catatan
+  - Todo: Graph, 
 
 
 # UI
@@ -30,12 +35,14 @@
 Base call   : pron
   - init    : initialize project notes
   - help    : print help
-  - login   : login user (active forever), when doesn't login user only have access to global note / todo
+  - login   : login user
   - logout  : logout user
-  - -an     : add note
-  - -at     : add todo
-  - -gan    : add global note
-  - -gat    : add global todo
+  - an      : add note
+  - at      : add todo
+  - in      : manage note import
+  - sn      : share note
+  - rn      : remove note
+  - rt      : remove todo
 
 
 # Pseudocode

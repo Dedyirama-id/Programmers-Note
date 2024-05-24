@@ -4,7 +4,7 @@
 #include "../src/styles/test_styles.h"
 #include "../src/class/hashtable.h"
 
-using namespace ml;
+using namespace ht;
 using namespace test;
 
 const string filePath = "data/hashtable.bin";

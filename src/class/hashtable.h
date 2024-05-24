@@ -5,7 +5,9 @@
 #define EMPTY 0
 #define MAX_SCALE 0.7
 
-namespace ml {
+using namespace std;
+
+namespace ht {
   template <typename T>
   class HashTable {
     T *table;
@@ -22,6 +24,10 @@ namespace ml {
 
     ~HashTable() {
       destroyAll();
+    }
+
+    bool isEmpty() const {
+      return size == 0;
     }
 
   private:
@@ -57,7 +63,7 @@ namespace ml {
       delete[] table;
     }
 
-    void addRecord(const T &data) {
+    void addRecord(const T data) {
       if (size > capacity * MAX_SCALE) {
         rehash();
       }
@@ -72,6 +78,10 @@ namespace ml {
       }
 
       table[index] = data;
+    }
+
+    void addRecord (T *data) {
+      addRecord(*data);
     }
 
     bool removeRecord(unsigned int id) {
@@ -110,10 +120,11 @@ namespace ml {
       return nullptr;
     }
 
-    void saveToBin(const string &filename) const {
+    bool saveToBin(const string &filename) const {
       ofstream outFile(filename, ios::binary);
       if (!outFile) {
-        throw runtime_error("Unable to open file for writing" + filename);
+        // throw runtime_error("Unable to open file for writing" + filename);
+        return false;
       }
 
       outFile.write(reinterpret_cast<const char *>(&capacity), sizeof(capacity));
@@ -126,10 +137,11 @@ namespace ml {
       outFile.close();
     }
 
-    void loadFromBin(const string &filename) {
+    bool loadFromBin(const string &filename) {
       ifstream inFile(filename, ios::binary);
       if (!inFile) {
-        throw runtime_error("Unable to open file for reading: " + filename);
+        // throw runtime_error("Unable to open file for reading: " + filename);
+        return false;
       }
 
       inFile.read(reinterpret_cast<char *>(&capacity), sizeof(capacity));
@@ -143,6 +155,7 @@ namespace ml {
       }
 
       inFile.close();
+      return true;
     }
   };
 }
