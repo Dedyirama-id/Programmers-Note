@@ -92,6 +92,14 @@ namespace app {
         toupper(value[0]);
       }
     }
+
+    SingleArg(string command) {
+      if (command.length() > 0) {
+        key = command.substr(0, command.find(" "));
+        key = u::toLowercase(key);
+        value = command.substr(command.find(" ") + 1);
+      }
+    }
   };
 
   void printDivider(int length = 50) {

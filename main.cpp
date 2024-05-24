@@ -15,12 +15,51 @@ Account *login();
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 
 int main() {
-  app::printCheckState();
+  system("cls");
+  app::printH1("# Create First Account");
+  registerAccount();
+
+  system("cls");
+  app::printH1("# Login");
+  Account *account = login();
+
+  if (account == nullptr) {
+    app::printError("Login failed!");
+    return 0;
+  }
+
+  while (true) {
+    system("cls");
+    app::printH1("# Programmers Notes - " + u::toUppercase(account->username));
+    string command = u::getStringInput();
+
+    app::SingleArg arg(command);
+
+    if (arg.key == "help") {
+      printHelp();
+      u::wait();
+    } else if (arg.key == "exit") {
+      break;
+    } else if (arg.key == "add") {
+      /* code */
+    } else if (arg.key == "view") {
+      /* code */
+    } else if (arg.key == "edit") {
+      /* code */
+    } else if (arg.key == "delete") {
+
+    } else {
+      app::printError("Invalid command!");
+      u::wait();
+    }
+
+  }
+
   return 0;
 }
 
 void printHelp() {
-  app::printH1("# Help");
+  app::printH2("# Help");
   cout << "No help yet :(" << endl;
 }
 
@@ -41,7 +80,6 @@ Account *registerAccount() {
 }
 
 Account *login() {
-  accounts->display();
   string username = u::getStringInput("Username: ");
   unsigned int id = usernameToId(username);
 
