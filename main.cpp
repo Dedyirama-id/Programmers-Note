@@ -18,6 +18,7 @@ void removeAccount();
 void addTodo(const string &todo);
 void addNotebook(const string &notebook);
 void addNote(const string &note);
+void openNotebook(const string &notebook);
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 
@@ -113,6 +114,16 @@ int main() {
         continue;
       }
       addNote(menu.commandValue);
+      break;
+    case 9:
+      if (menu.commandValue == "") {
+        app::printWarning("Notebook name cannot be empty!");
+        app::printWarning("Try \"on <notebook>\" to open note!");
+        u::wait();
+        continue;
+      }
+
+      openNotebook(menu.commandValue);
       break;
     default:
       app::printWarning("Invalid command!");
@@ -224,5 +235,20 @@ void addNote(const string &note) {
   tr::Node<Note> *bookNode = activeAccount->notes->search(notebook);
   bookNode->data.addContent(note);
   app::printSuccess("Note added!");
+  u::wait();
+}
+
+void openNotebook(const string &notebook) {
+  tr::Node<Note> *bookNode = activeAccount->notes->search(notebook);
+  if (bookNode == nullptr) {
+    app::printError("Notebook not found!");
+    u::wait();
+    return;
+  }
+
+  app::printH2(bookNode->id);
+  for (int i = 0; i < bookNode->data.count; ++i) {
+    cout << "- " << bookNode->data.content[i] << endl;
+  }
   u::wait();
 }
