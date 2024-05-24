@@ -33,10 +33,11 @@
 
 # Flag
 Base call   : pron
-  - init    : initialize project notes
+  <!-- - init    : initialize project notes -->
   - help    : print help
   - login   : login user
   - logout  : logout user
+  - au      : add user
   - an      : add note
   - at      : add todo
   - in      : manage note import

@@ -1,7 +1,8 @@
+#pragma once
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "../app/app.h"
+#include "app.h"
 
 using namespace std;
 
@@ -93,9 +94,9 @@ namespace gr {
     Vertex<T> *verticesHead;
     Vertex<T> *verticesTail;
   public:
-    int vertexCount;
+    int vertexCount = 0;
 
-    Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) {}
+    Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) { }
 
     ~Graph() {
       destroyAllVertices();

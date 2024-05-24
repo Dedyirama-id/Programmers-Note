@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
 #include "src/hashtable.h"
-#include "src/data-type/account.h"
+#include "src/graph.h"
+#include "src/account.h"
 #include "src/app.h"
 #include "src/utils.h"
 
@@ -11,8 +12,22 @@ void printHelp();
 unsigned int usernameToId(const string &username);
 Account *registerAccount();
 Account *login();
+void removeAccount();
+void addTodo(const string &todo);
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
+
+Account *activeAccount = nullptr;
+
+app::CliMenu menu({
+  "exit",
+  "help",
+  "login",
+  "logout",
+  "au",
+  "ru",
+  "do",
+  });
 
 int main() {
   system("cls");
@@ -21,40 +36,71 @@ int main() {
 
   system("cls");
   app::printH1("# Login");
-  Account *account = login();
+  activeAccount = login();
 
-  if (account == nullptr) {
+  if (activeAccount == nullptr) {
     app::printError("Login failed!");
     return 0;
   }
 
   while (true) {
     system("cls");
-    app::printH1("# Programmers Notes - " + u::toUppercase(account->username));
-    string command = u::getStringInput();
+    app::printH1("# Programmers Notes - " + u::toUppercase(activeAccount->username));
+    menu.getCommand();
 
-    app::SingleArg arg(command);
-
-    if (arg.key == "help") {
+    switch (menu.commandNum) {
+    case 0:
+      break;
+    case 1:
       printHelp();
       u::wait();
-    } else if (arg.key == "exit") {
       break;
-    } else if (arg.key == "add") {
-      /* code */
-    } else if (arg.key == "view") {
-      /* code */
-    } else if (arg.key == "edit") {
-      /* code */
-    } else if (arg.key == "delete") {
+    case 2:
+      if (activeAccount != nullptr) {
+        app::printWarning("Already logged in!");
+        u::wait();
+        continue;
+      }
 
-    } else {
-      app::printError("Invalid command!");
+      activeAccount = login();
+      break;
+    case 3:
+      activeAccount = nullptr;
+      app::printSuccess("Logged out!");
       u::wait();
-    }
 
+      while (activeAccount == nullptr) activeAccount = login();
+      break;
+    case 4:
+      app::printH2("Create new user account");
+      registerAccount();
+      break;
+    case 5:
+      app::printH2("Remove user account");
+      removeAccount();
+      break;
+    case 6:
+      if (menu.commandValue == "") {
+        app::printWarning("Todo cannot be empty!");
+        app::printWarning("Try \"do <todo>\" to add a new todo!");
+        u::wait();
+        continue;
+      }
+
+      addTodo(menu.commandValue);
+      break;
+    case 7:
+      /* code */
+      break;
+    default:
+      app::printWarning("Invalid command!");
+      u::wait();
+      break;
+    };
+
+    if (menu.commandNum == 0) break;
+    menu.commandNum = -1;
   }
-
   return 0;
 }
 
@@ -74,7 +120,8 @@ Account *registerAccount() {
 
   string password = u::getStringInput("Password: ");
 
-  Account newAccount(id, username, password);
+  gr::Graph<string> *todos = new gr::Graph<string>();
+  Account newAccount(id, username, password, todos);
   accounts->addRecord(newAccount);
   return accounts->getRecord(id);
 }
@@ -103,4 +150,32 @@ unsigned int usernameToId(const string &username) {
     id += (username[i] - 64) * u::pow(10, username.size() - i - 1);
   }
   return id;
+}
+
+void removeAccount() {
+  string username = u::getStringInput("Username: ");
+  unsigned int id = usernameToId(username);
+
+  Account *account = accounts->getRecord(id);
+  if (account == nullptr) {
+    app::printError("Account not found!");
+    return;
+  }
+
+  accounts->removeRecord(id);
+  app::printSuccess("Account removed!");
+  u::wait();
+}
+
+void addTodo(const string &todo) {
+  unsigned int todoId = activeAccount->todos->vertexCount + 1;
+  bool success = activeAccount->todos->addVertex(todoId, todo);
+
+  if (!success) {
+    app::printError("Failed to add todo!");
+    u::wait();
+    return;
+  }
+  app::printSuccess("Todo added!");
+  u::wait();
 }

@@ -102,6 +102,49 @@ namespace app {
     }
   };
 
+  class CliMenu {
+  public:
+    string *menuList;
+    int menuSize;
+    int commandNum = -1;
+    string commandValue = "";
+
+
+    CliMenu(initializer_list<string> menuItems) {
+      menuSize = menuItems.size();
+      menuList = new string[menuSize];
+      int index = 0;
+      for (const auto &item : menuItems) {
+        menuList[index++] = item;
+      }
+    }
+
+    ~CliMenu() {
+      delete[] menuList;
+    }
+
+    void getCommand() {
+      string input = u::getStringInput();
+      size_t spacePos = input.find(" ");
+      string commandInput = input.substr(0, spacePos);
+
+      if (spacePos == std::string::npos) {
+        commandValue = "";
+      } else {
+        commandValue = input.substr(spacePos + 1);
+      }
+
+      for (int i = 0; i < menuSize; i++) {
+        if (commandInput == menuList[i]) {
+          commandNum = i;
+          return;
+        }
+      }
+
+      commandNum = -1;
+    }
+  };
+
   void printDivider(int length = 50) {
     cout << "+";
     for (int i = 0; i < length; i++) cout << "-";
