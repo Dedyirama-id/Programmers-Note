@@ -1,12 +1,15 @@
 #pragma once
 #include <string>
 #include "graph.h"
+#include "binarytree.h"
+#include "note.h"
 
 #define MIN_PASSWORD_LENGTH 5
 #define EMPTY 0
 
 using namespace std;
 using namespace gr;
+using namespace tr;
 
 struct Account {
 private:
@@ -16,11 +19,12 @@ public:
   string username;
 
   Graph<string> *todos;
+  BinaryTree<Note> *notes;
 
   Account() : id(EMPTY), username(""), password("") {}
 
-  Account(unsigned int id, const string &username, const string &password, Graph<string> *todos)
-    : id(id), username(username), password(hashing(password)), todos(todos) {}
+  Account(unsigned int id, const string &username, const string &password, Graph<string> *todos, BinaryTree<Note> *notes)
+    : id(id), username(username), password(hashing(password)), todos(todos), notes(notes)  {}
 
   ~Account() {}
 

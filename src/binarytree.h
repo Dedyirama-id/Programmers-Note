@@ -8,11 +8,11 @@ using namespace std;
 namespace tr {
   template <typename T>
   struct Node {
-    unsigned int id;
+    string id;
     T data;
     Node<T> *left = nullptr;
     Node<T> *right = nullptr;
-    Node(unsigned int id, T value) : id(id), data(value), left(nullptr), right(nullptr) {}
+    Node(string id, T value) : id(id), data(value), left(nullptr), right(nullptr) {}
     ~Node() {}
   };
 
@@ -21,7 +21,7 @@ namespace tr {
   private:
     Node<T> *root;
 
-    Node<T> *findPositionHelper(Node<T> *node, unsigned int id) {
+    Node<T> *findPositionHelper(Node<T> *node, string id) {
       if (node == nullptr) {
         return nullptr;
       }
@@ -43,7 +43,7 @@ namespace tr {
       }
     }
 
-    Node<T> *searchHelper(Node<T> *node, unsigned int id) const {
+    Node<T> *searchHelper(Node<T> *node, string id) const {
       if (node == nullptr || node->id == id) {
         return node;
       }
@@ -62,7 +62,7 @@ namespace tr {
       return node;
     }
 
-    Node<T> *deleteNodeHelper(Node<T> *node, unsigned int id) {
+    Node<T> *deleteNodeHelper(Node<T> *node, string id) {
       if (node == nullptr) {
         return node;
       }
@@ -136,7 +136,7 @@ namespace tr {
     }
 
     Node<T> *loadFromBinHelper(ifstream &inFile) {
-      unsigned int id;
+      string id;
       T data;
       bool hasLeft, hasRight;
       if (inFile.read(reinterpret_cast<char *>(&id), sizeof(id))) {
@@ -182,14 +182,14 @@ namespace tr {
     }
 
 
-    Node<T> *findPosition(unsigned int id) {
+    Node<T> *findPosition(string id) {
       if (root == nullptr) {
         return nullptr;
       }
       return findPositionHelper(root, id);
     }
 
-    bool insert(unsigned int id, T value) {
+    bool insert(string id, T value) {
       Node<T> *parent = findPosition(id);
       if (parent == nullptr) {
         if (root == nullptr) {
@@ -208,7 +208,7 @@ namespace tr {
       }
     }
 
-    Node<T> *search(unsigned int id) const {
+    Node<T> *search(string id) const {
       return searchHelper(root, id);
     }
 
@@ -227,7 +227,7 @@ namespace tr {
       cout << endl;
     }
 
-    void deleteNode(unsigned int id) {
+    void deleteNode(string id) {
       root = deleteNodeHelper(root, id);
     }
 

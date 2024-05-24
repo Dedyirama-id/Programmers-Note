@@ -2,7 +2,9 @@
 #include <string>
 #include "src/hashtable.h"
 #include "src/graph.h"
+#include "src/binarytree.h"
 #include "src/account.h"
+#include "src/note.h"
 #include "src/app.h"
 #include "src/utils.h"
 
@@ -14,6 +16,8 @@ Account *registerAccount();
 Account *login();
 void removeAccount();
 void addTodo(const string &todo);
+void addNotebook(const string &notebook);
+void addNote(const string &note);
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 
@@ -27,6 +31,9 @@ app::CliMenu menu({
   "au",
   "ru",
   "do",
+  "cn",
+  "an",
+  "on",
   });
 
 int main() {
@@ -90,7 +97,22 @@ int main() {
       addTodo(menu.commandValue);
       break;
     case 7:
-      /* code */
+      if (menu.commandValue == "") {
+        app::printWarning("Notebook name cannot be empty!");
+        app::printWarning("Try \"cn <notebook>\" to add a new notebook!");
+        u::wait();
+        continue;
+      }
+      addNotebook(menu.commandValue);
+      break;
+    case 8:
+      if (menu.commandValue == "") {
+        app::printWarning("Note cannot be empty!");
+        app::printWarning("Try \"an <note>\" to add note!");
+        u::wait();
+        continue;
+      }
+      addNote(menu.commandValue);
       break;
     default:
       app::printWarning("Invalid command!");
@@ -121,7 +143,8 @@ Account *registerAccount() {
   string password = u::getStringInput("Password: ");
 
   gr::Graph<string> *todos = new gr::Graph<string>();
-  Account newAccount(id, username, password, todos);
+  tr::BinaryTree<Note> *notes = new tr::BinaryTree<Note>();
+  Account newAccount(id, username, password, todos, notes);
   accounts->addRecord(newAccount);
   return accounts->getRecord(id);
 }
@@ -177,5 +200,29 @@ void addTodo(const string &todo) {
     return;
   }
   app::printSuccess("Todo added!");
+  u::wait();
+}
+
+void addNotebook(const string &notebook) {
+  activeAccount->notes->insert(notebook, Note(notebook));
+  app::printSuccess("Notebook added!");
+  u::wait();
+}
+
+void addNote(const string &note) {
+  app::printH2("Notebook available:");
+  activeAccount->notes->inOrderTraversal();
+
+  string notebook = u::getStringInput("Please select a notebook: ");
+
+  if (activeAccount->notes->search(notebook) == nullptr) {
+    app::printError("Notebook not found!");
+    u::wait();
+    return;
+  }
+
+  tr::Node<Note> *bookNode = activeAccount->notes->search(notebook);
+  bookNode->data.addContent(note);
+  app::printSuccess("Note added!");
   u::wait();
 }
