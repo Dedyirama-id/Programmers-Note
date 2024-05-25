@@ -92,6 +92,7 @@ namespace gr {
     Vertex<T> *verticesTail;
   public:
     int vertexCount = 0;
+    int idCount = 0;
 
     Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) {}
 

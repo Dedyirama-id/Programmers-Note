@@ -11,6 +11,8 @@
   <!-- - Sort todo by degree -->
   <!-- - What to do -->
   - Remove user
+  - Sort todo
 
 
 # Bugs
+  - Todo masih bisa ditambahkan ketika ada id yang sama

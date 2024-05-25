@@ -297,7 +297,7 @@ void removeAccount() {
 }
 
 void addTodo(const string &todo) {
-  unsigned int todoId = activeAccount->todos->vertexCount + 1;
+  unsigned int todoId = activeAccount->todos->idCount + 1;
 
   gr::Vertex<string> *vertex = activeAccount->todos->getVerticesHead();
   while (vertex != nullptr) {
@@ -319,6 +319,7 @@ void addTodo(const string &todo) {
   gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
   if (activeAccount->todos->vertexCount <= 1) {
     app::printSuccess("Todo added!");
+    activeAccount->todos->idCount++;
     u::wait();
     return;
   }
@@ -346,6 +347,7 @@ void addTodo(const string &todo) {
     }
   }
 
+  activeAccount->todos->idCount++;
   app::printSuccess("Todo added!");
   u::wait();
 }
