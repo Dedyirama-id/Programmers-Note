@@ -12,11 +12,12 @@
 using namespace std;
 
 // Function Prototype
-bool statusCheck(app::CliMenu menu, bool mustLoggedIn = true, bool mustHaveCommandValue = true);
+bool statusCheck(const bool mustLoggedIn = true, const bool mustHaveCommandValue = true);
 void printHelp();
 unsigned int usernameToId(const string &username);
 Account *registerAccount();
 Account *login();
+void logout();
 void removeAccount();
 void addTodo(const string &todo);
 void addNotebook(const string &notebook);
@@ -103,13 +104,11 @@ int main() {
         continue;
       }
 
-      activeAccount = nullptr;
-      app::printSuccess("Logged out!");
-      u::wait();
+      logout();
       break;
 
     case 4: // au - add user
-      if (!statusCheck(menu, false, false)) continue;
+      if (!statusCheck(false, false)) continue;
       app::printH2("Create new user account");
       registerAccount();
       break;
@@ -120,53 +119,54 @@ int main() {
       break;
 
     case 6: // do - add todo
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) break;
       addTodo(menu.commandValue);
       break;
 
     case 7: // cn - create notebook
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       addNotebook(menu.commandValue);
       break;
 
     case 8: // an - add note
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       addNote(menu.commandValue);
       break;
 
     case 9: // on - open notebook
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       openNotebook(menu.commandValue);
       break;
 
     case 10: // sn - send notebook
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       sendNotebook(menu.commandValue);
       break;
 
     case 11: // import - manage notebook import
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       manageImport();
       break;
 
     case 12: // todos
-      if (!statusCheck(menu, true, false)) continue;
+      if (!statusCheck(true, false)) continue;
       printTodos();
       u::wait();
       break;
 
     case 13: // dt - print todo details
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       try {
         printTodoDetails(stoi(menu.commandValue));
-      } catch (...) {
+      }
+      catch (...) {
         app::printWarning("Invalid todo id!");
         u::wait();
       }
       break;
 
     case 14: // rn - remove notebook
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       if (menu.commandValue == "") {
         app::printWarning("Todo id cannot be empty!");
         app::printWarning("Try \"rn <title>\" to remove note!");
@@ -178,28 +178,29 @@ int main() {
       break;
 
     case 15: // un - undo notebook delete
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       undoNotebookDelete();
       break;
 
     case 16: // rm - remove todo
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       try {
         removeTodo(stoi(menu.commandValue));
-      } catch (...) {
+      }
+      catch (...) {
         app::printWarning("Invalid todo id!");
         u::wait();
       }
       break;
 
     case 17: // wtd - show what to do
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       showWhatTodo();
       u::wait();
       break;
 
     case 18: // sid - sort todo list by id
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       app::printH2("Sort todo list by Id");
       activeAccount->todos->insertionSortById();
       printTodos();
@@ -207,7 +208,7 @@ int main() {
       break;
 
     case 19: // smp - sort todo list by most possible to do
-      if (!statusCheck(menu, true, true)) continue;
+      if (!statusCheck(true, true)) continue;
       app::printH2("Sort todo list by most possible");
       activeAccount->todos->insertionSortByDegreeAscending();
       printTodos();
@@ -216,17 +217,18 @@ int main() {
 
     default:
       app::printWarning("Invalid command!");
+      menu.reset();
       u::wait();
       break;
     };
 
     if (menu.commandNum == 0) break;
-    menu.commandNum = -1;
+    menu.reset();
   }
   return 0;
 }
 
-bool statusCheck(app::CliMenu menu, bool mustLoggedIn, bool mustHaveCommandValue) {
+bool statusCheck(const bool mustLoggedIn, const bool mustHaveCommandValue) {
   if (mustLoggedIn && activeAccount == nullptr) {
     app::printWarning("You must login first!");
     u::wait();
@@ -291,6 +293,17 @@ Account *login() {
     return nullptr;
   }
   return account;
+}
+
+void logout() {
+  if (u::getBoolInput("Are you sure?")) {
+    activeAccount = nullptr;
+    app::printSuccess("Logged out!");
+  } else {
+    app::printWarning("Cancelled!");
+  }
+
+  u::wait();
 }
 
 unsigned int usernameToId(const string &username) {

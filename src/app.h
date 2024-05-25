@@ -124,11 +124,12 @@ namespace app {
     }
 
     void getCommand() {
+      reset();
       string input = u::getStringInput();
       size_t spacePos = input.find(" ");
       string commandInput = input.substr(0, spacePos);
 
-      if (spacePos == std::string::npos) {
+      if (spacePos == string::npos) {
         commandValue = "";
       } else {
         commandValue = input.substr(spacePos + 1);
@@ -142,6 +143,11 @@ namespace app {
       }
 
       commandNum = -1;
+    }
+
+    void reset() {
+      commandNum = -1;
+      commandValue = "";
     }
   };
 
