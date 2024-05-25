@@ -22,9 +22,10 @@ void addNote(const string &note);
 void openNotebook(const string &notebook);
 void sendNotebook(const string &notebook);
 void manageImport();
+void printTodos();
+void printTodoDetails(const int id);
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
-
 Account *activeAccount = nullptr;
 
 app::CliMenu menu({
@@ -39,7 +40,9 @@ app::CliMenu menu({
   "an",
   "on",
   "sn",
-  "import"
+  "import",
+  "todos",
+  "dt"
   });
 
 int main() {
@@ -144,6 +147,27 @@ int main() {
 
     case 11:
       manageImport();
+      break;
+
+    case 12:
+      printTodos();
+      u::wait();
+      break;
+
+    case 13:
+      if (menu.commandValue == "") {
+        app::printWarning("Todo id cannot be empty!");
+        app::printWarning("Try \"dt <id>\" to print todo details!");
+        u::wait();
+        continue;
+      }
+
+      try {
+        printTodoDetails(stoi(menu.commandValue));
+      } catch (...) {
+        app::printWarning("Invalid todo id!");
+        u::wait();
+      }
       break;
     default:
       app::printWarning("Invalid command!");
@@ -376,10 +400,31 @@ void manageImport() {
 
 void printTodos() {
   app::printH1("Todos");
-  
+
   gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
   while (vertexPrint != nullptr) {
     cout << vertexPrint->id << ". " << vertexPrint->data << endl;
     vertexPrint = vertexPrint->next;
   }
+}
+
+void printTodoDetails(const int id) {
+  gr::Vertex<string> *current = activeAccount->todos->searchById(id);
+  if (current == nullptr) {
+    app::printError("Invalid todo id!");
+    u::wait();
+    return;
+  }
+
+  app::printH2("Todo Details");
+  cout << "- Todo Id: " << current->id << endl;
+  cout << "- Todo: " << current->data << endl;
+  cout << "- Depends on: " << endl;
+  gr::Edge<string> *edge = current->edgeList;
+  while (edge != nullptr) {
+    cout << "\t- [" << edge->vertexRef->id << "] " << edge->vertexRef->data << endl;
+    edge = edge->next;
+  }
+
+  u::wait("\nEnter to continue...");
 }

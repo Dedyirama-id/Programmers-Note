@@ -10,6 +10,7 @@
   - Hapus note
   - Sort todo by degree
   - What to do
+  - Remove user
 
 
 # Bugs
