@@ -11,7 +11,7 @@
   <!-- - Sort todo by degree -->
   <!-- - What to do -->
   <!-- - Remove user -->
-  - Sort todo
+  <!-- - Sort todo -->
 
 
 # Bugs
