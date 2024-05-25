@@ -60,7 +60,9 @@ app::CliMenu menu({
   "sid",
   "smp",
   "en", 
-  "et"
+  "et",
+  "--print-graph",
+  "--print-tree",
   });
 
 int main() {
@@ -82,6 +84,7 @@ int main() {
 
     switch (menu.commandNum) {
     case 0: // exit
+
       break;
 
     case 1: // help
@@ -233,6 +236,19 @@ int main() {
       }
       break;
 
+    case 22: // --print-graph
+      if (!statusCheck(true, false)) continue;
+      app::printH2("Graph vertices in adjacency list: ");
+      activeAccount->todos->displayGraph();
+      u::wait();
+      break;
+
+    case 23: // --print-tree
+      if (!statusCheck(true, false)) continue;
+      app::printH2("Tree node inorder traversal: ");
+      activeAccount->notes->inOrderTraversal();
+      u::wait();
+      break;
     default:
       app::printWarning("Invalid command!");
       menu.reset();
@@ -243,6 +259,10 @@ int main() {
     if (menu.commandNum == 0) break;
     menu.reset();
   }
+
+  app::printH2("Goodbye! :)");
+  delete activeAccount;
+  delete accounts;
   return 0;
 }
 
@@ -289,6 +309,10 @@ void printHelp() {
   cout << "  smp           - Sort todo list by most possible to do" << endl;
   cout << "  en <id>       - Edit a note by note ID" << endl;
   cout << "  et <id>       - Edit a todo by todo ID" << endl;
+  cout << endl;
+  cout << "Debug Commands:" << endl;
+  cout << "  --print-graph - Print the todos graph" << endl;
+  cout << "  --print-tree  - Print the notebook tree inorder traversal" << endl;
   cout << endl;
   cout << "Note: Some commands require you to be logged in and/or provide additional values." << endl;
 }

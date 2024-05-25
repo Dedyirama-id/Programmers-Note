@@ -14,9 +14,9 @@
   <!-- - Sort todo -->
   <!-- - hapus note pada notebook -->
   <!-- - edit note -->
+  <!-- - Hapus relasi todo -->
 
   - Tambahkan menu debugging
-  - Hapus relasi todo
 
 
 # Bugs

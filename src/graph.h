@@ -199,7 +199,7 @@ namespace gr {
     void displayGraph() {
       Vertex<T> *current = verticesHead;
       while (current != nullptr) {
-        cout << current->id << "(" << current->degree << ")" << " -> ";
+        cout << current->id << " (" << current->degree << ")" << " -> ";
         Edge<T> *currentEdge = current->edgeList;
         while (currentEdge != nullptr) {
           cout << currentEdge->vertexRef->id;
