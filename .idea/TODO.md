@@ -12,7 +12,10 @@
   <!-- - What to do -->
   <!-- - Remove user -->
   <!-- - Sort todo -->
+  - Tambahkan menu debugging
+  - Hapus relasi todo
+  - hapus note pada notebook
 
 
 # Bugs
-  - Todo masih bisa ditambahkan ketika ada id yang sama
+  <!-- - Todo masih bisa ditambahkan ketika ada id yang sama -->

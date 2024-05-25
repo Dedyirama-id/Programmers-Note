@@ -12,7 +12,7 @@
 using namespace std;
 
 // Function Prototype
-bool statusCheck(const bool mustLoggedIn = true, const bool mustHaveCommandValue = true);
+bool statusCheck(const bool mustLoggedIn = false, const bool mustHaveCommandValue = false);
 void printHelp();
 unsigned int usernameToId(const string &username);
 Account *registerAccount();
@@ -27,7 +27,7 @@ void sendNotebook(const string &notebook);
 void manageImport();
 void printTodos();
 void printTodoDetails(const int id);
-void removeNote(const string &note);
+void deleteNotebook(const string &note);
 void undoNotebookDelete();
 void removeTodo(const int id);
 void showWhatTodo();
@@ -63,13 +63,10 @@ int main() {
   app::printH2("You need to create an account first!");
   registerAccount();
 
-  system("cls");
-  app::printH1("# Login");
-  activeAccount = login();
-
-  if (activeAccount == nullptr) {
-    app::printError("Login failed!");
-    return 0;
+  while (activeAccount == nullptr) {
+    system("cls");
+    app::printH1("# Login");
+    activeAccount = login();
   }
 
   while (true) {
@@ -174,7 +171,7 @@ int main() {
         continue;
       }
 
-      removeNote(menu.commandValue);
+      deleteNotebook(menu.commandValue);
       break;
 
     case 15: // un - undo notebook delete
@@ -194,9 +191,9 @@ int main() {
       break;
 
     case 17: // wtd - show what to do
-      if (!statusCheck(true, true)) continue;
+      if (!statusCheck(true, false)) continue;
       showWhatTodo();
-      u::wait();
+      u::wait("Enter to continue...");
       break;
 
     case 18: // sid - sort todo list by id
@@ -257,10 +254,19 @@ Account *registerAccount() {
 
   if (accounts->getRecord(id) != nullptr) {
     app::printError("Username already exists!");
+    u::wait();
     return nullptr;
   }
 
-  string password = u::getStringInput("Password: ");
+  string password, confirmPassword;
+  do {
+    password = u::getStringInput("Password: ");
+    confirmPassword = u::getStringInput("Confirm password: ");
+    if (password != confirmPassword) {
+      app::printError("Passwords do not match!");
+      u::wait();
+    }
+  } while (password != confirmPassword);
 
   gr::Graph<string> *todos = new gr::Graph<string>();
   tr::BinaryTree<Note> *notes = new tr::BinaryTree<Note>();
@@ -290,6 +296,7 @@ Account *login() {
   string password = u::getStringInput("Password: ");
   if (!account->validatePassword(password)) {
     app::printError("Invalid password!");
+    u::wait();
     return nullptr;
   }
   return account;
@@ -302,7 +309,6 @@ void logout() {
   } else {
     app::printWarning("Cancelled!");
   }
-
   u::wait();
 }
 
@@ -325,18 +331,38 @@ void removeAccount() {
     return;
   }
 
+  string password = u::getStringInput("Enter account password to delete: ");
+  if (!account->validatePassword(password)) {
+    app::printError("Invalid password!");
+    u::wait();
+    return;
+  }
+
+  if (!u::getBoolInput("Are you sure?")) {
+    app::printWarning("Cancelled!");
+    u::wait();
+    return;
+  }
+
+  if (activeAccount == account) {
+    activeAccount = nullptr;
+  }
+
   accounts->removeRecord(id);
   app::printSuccess("Account removed!");
   u::wait();
 }
 
 void addTodo(const string &todo) {
-  unsigned int todoId = activeAccount->todos->idCount + 1;
-
+  const unsigned int todoId = activeAccount->todos->idCount + 1;
   gr::Vertex<string> *vertex = activeAccount->todos->getVerticesHead();
   while (vertex != nullptr) {
     if (vertex->data == todo) {
       app::printError("Todo already exists!");
+      u::wait();
+      return;
+    } else if (vertex->id == todoId) {
+      app::printError("Todo ID already exists!");
       u::wait();
       return;
     }
@@ -350,43 +376,57 @@ void addTodo(const string &todo) {
     return;
   }
 
-  gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
-  if (activeAccount->todos->vertexCount <= 1) {
-    app::printSuccess("Todo added!");
-    activeAccount->todos->idCount++;
-    u::wait();
-    return;
-  }
+  activeAccount->todos->idCount++;
+  app::printSuccess("Todo added!");
+  u::wait();
+  if (activeAccount->todos->vertexCount <= 1) return;
 
   while (true) {
     system("cls");
     app::printH1("# Todos Relationship: " + todo);
     app::printH2("ID Todo");
+    gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
+    int printCount = 0;
     while (vertexPrint != nullptr) {
-      if (vertexPrint->id != todoId && vertexPrint->searchEdgeById(todoId) == false) cout << vertexPrint->id << ". " << vertexPrint->data << endl;
+      if (vertexPrint->id != todoId && vertexPrint->searchEdgeById(todoId) == false) {
+        cout << vertexPrint->id << ". " << vertexPrint->data << endl;
+        printCount++;
+      }
 
       vertexPrint = vertexPrint->next;
     }
 
-    int todoIdInput = u::getIntInput("Todo id that depends on this: (0 to skip) ");
-    if (todoIdInput == 0) break;
+    if (printCount == 0) {
+      app::printWarning("No options available!");
+      u::wait();
+      return;
+    }
 
-    if (activeAccount->todos->searchById(todoIdInput) == nullptr) {
+    int todoIdInput = u::getIntInput("Todo id that depends on " + todo + ": (0 to skip) ");
+
+    if (todoIdInput == 0) break;
+    gr::Vertex<string> *targetVertex = activeAccount->todos->searchById(todoIdInput);
+    if (targetVertex->searchEdgeById(todoId) != nullptr) {
+      app::printWarning("Todo already connected!");
+      u::wait();
+    }
+
+    if (targetVertex == nullptr) {
       app::printError("Invalid todo id!");
       u::wait();
-      continue;
     } else {
       activeAccount->todos->addEdgeById(todoIdInput, todoId);
-      continue;
     }
   }
-
-  activeAccount->todos->idCount++;
-  app::printSuccess("Todo added!");
-  u::wait();
 }
 
 void addNotebook(const string &notebook) {
+  if (activeAccount->notes->search(notebook) != nullptr) {
+    app::printError("Notebook already exists!");
+    u::wait();
+    return;
+  }
+
   activeAccount->notes->insert(notebook, Note(notebook));
   app::printSuccess("Notebook added!");
   u::wait();
@@ -463,6 +503,12 @@ void manageImport() {
     case 0:
       return;
     case 1:
+      if (activeAccount->notes->search(currentNote.title) != nullptr) {
+        app::printError("Note with same title already exists!");
+        u::wait();
+        continue;
+      }
+
       activeAccount->notes->insert(currentNote.title, currentNote);
       activeAccount->notesQueue->dequeue();
       app::printSuccess("Note accepted!");
@@ -504,18 +550,27 @@ void printTodoDetails(const int id) {
   cout << "- Todo: " << current->data << endl;
   cout << "- Depends on: " << endl;
   gr::Edge<string> *edge = current->edgeList;
+  int printCount = 0;
   while (edge != nullptr) {
     cout << "\t- [" << edge->vertexRef->id << "] " << edge->vertexRef->data << endl;
     edge = edge->next;
+    printCount++;
   }
 
+  if (printCount == 0) app::printWarning("No dependencies!");
   u::wait("\nEnter to continue...");
 }
 
-void removeNote(const string &title) {
+void deleteNotebook(const string &title) {
   tr::Node<Note> *current = activeAccount->notes->search(title);
   if (current == nullptr) {
-    app::printError("Invalid todo id!");
+    app::printError("Invalid note!");
+    u::wait();
+    return;
+  }
+
+  if (!u::getBoolInput("Are you sure you want to delete this note?")) {
+    app::printWarning("Note deletion cancelled!");
     u::wait();
     return;
   }
@@ -537,17 +592,30 @@ void undoNotebookDelete() {
   Note currentNote = activeAccount->NotesStack->peek();
   activeAccount->notes->insert(currentNote.title, currentNote);
   activeAccount->NotesStack->pop();
-  app::printSuccess("Note restored!");
+  app::printSuccess("Note \"" + currentNote.title + "\" restored!");
   u::wait();
 }
 
 void removeTodo(const int id) {
-  bool success = activeAccount->todos->deleteVertexById(id);
-  if (!success) {
-    app::printError("Todo not found!");
+  if (activeAccount->todos->searchById(id) == nullptr) {
+    app::printError("Invalid todo id!");
     u::wait();
     return;
   }
+
+  if (!u::getBoolInput("Are you sure you want to delete this todo?")) {
+    app::printWarning("Todo deletion cancelled!");
+    u::wait();
+    return;
+  }
+
+  bool success = activeAccount->todos->deleteVertexById(id);
+  if (!success) {
+    app::printError("Failed to remove todo!");
+    u::wait();
+    return;
+  }
+
   app::printSuccess("Todo removed!");
   u::wait();
 }
@@ -561,6 +629,7 @@ void showWhatTodo() {
 
   activeAccount->todos->insertionSortByDegreeAscending();
   gr::Vertex<string> *todo = activeAccount->todos->getVerticesHead();
+  app::printWarning("List of todo that possible to be done now:");
   int count = 1;
   app::printH2("No  Todo");
   while (todo != nullptr) {

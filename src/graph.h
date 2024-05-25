@@ -59,6 +59,8 @@ namespace gr {
         return true;
       }
 
+      if (searchEdgeById(vertex->id) != nullptr) return false;
+
       Edge<T> *newEdge = new Edge<T>(vertex);
       newEdge->next = edgeList;
       edgeList->prev = newEdge;
