@@ -33,6 +33,7 @@ void removeTodo(const int id);
 void showWhatTodo();
 void editNote(const string &title);
 void editNote(tr::Node<Note> *target);
+void editTodo(const int id);
 
 // Global Object
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
@@ -58,7 +59,8 @@ app::CliMenu menu({
   "wtd",
   "sid",
   "smp",
-  "en"
+  "en", 
+  "et"
   });
 
 int main() {
@@ -158,6 +160,7 @@ int main() {
       if (!statusCheck(true, true)) continue;
       try {
         printTodoDetails(stoi(menu.commandValue));
+        u::wait("\nEnter to continue...");
       }
       catch (...) {
         app::printWarning("Invalid todo id!");
@@ -219,6 +222,18 @@ int main() {
       if (!statusCheck(true, true)) continue;
       editNote(menu.commandValue);
       break;
+
+    case 21: // et - edit todo dependencies
+      if (!statusCheck(true, true)) continue;
+      try {
+        editTodo(stoi(menu.commandValue));
+      }
+      catch (...) {
+        app::printWarning("Invalid todo id!");
+        u::wait();
+      }
+      break;
+
     default:
       app::printWarning("Invalid command!");
       menu.reset();
@@ -587,7 +602,6 @@ void printTodoDetails(const int id) {
   }
 
   if (printCount == 0) app::printWarning("No dependencies!");
-  u::wait("\nEnter to continue...");
 }
 
 void deleteNotebook(const string &title) {
@@ -736,3 +750,52 @@ void editNote(tr::Node<Note> *target) {
   app::printSuccess("Content updated!");
   u::wait();
 }
+
+void editTodo(const int id) {
+  gr::Vertex<string> *target = activeAccount->todos->searchById(id);
+  if (target == nullptr) {
+    app::printError("Todo not found!");
+    u::wait();
+    return;
+  }
+
+  app::Menu editTodoMenu({ "Exit", "Edit Todo", "Remove Todo Dependencies" });
+  while (true) {
+    system("cls");
+    app::printH1("Edit Todo: " + target->data);
+    printTodoDetails(id);
+    app::printDivider();
+    string stringInput;
+    int intInput;
+    int choice = editTodoMenu.getChoice();
+    switch (choice) {
+    case 0:
+      return;
+    case 1:
+      stringInput = u::getStringInput("Enter new todo: ");
+      target->data = stringInput;
+      break;
+    case 2:
+      intInput = u::getIntInput("Id of todo dependencies to remove: ");
+      if (target->searchEdgeById(intInput) == nullptr) {
+        app::printError("Invalid id!");
+        u::wait();
+        break;
+      }
+
+      if (!u::getBoolInput("Are you sure you want to remove this dependency?")) {
+        app::printWarning("Dependency removal cancelled!");
+        u::wait();
+        break;
+      }
+
+      target->deleteEdgeById(intInput);
+      app::printSuccess("Dependency removed!");
+      u::wait();
+      break;
+    default:
+      break;
+    }
+  }
+}
+
