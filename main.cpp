@@ -50,7 +50,9 @@ app::CliMenu menu({
   "rn",
   "un",
   "rt",
-  "wtd"
+  "wtd",
+  "sid",
+  "smp"
   });
 
 int main() {
@@ -211,6 +213,20 @@ int main() {
 
     case 17:
       showWhatTodo();
+      u::wait();
+      break;
+
+    case 18:
+      app::printH2("Sort todo list by Id");
+      activeAccount->todos->insertionSortById();
+      printTodos();
+      u::wait();
+      break;
+
+    case 19:
+      app::printH2("Sort todo list by most possible");
+      activeAccount->todos->insertionSortByDegreeAscending();
+      printTodos();
       u::wait();
       break;
     default:
@@ -450,8 +466,9 @@ void printTodos() {
   app::printH1("Todos");
 
   gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
+  app::printH2("ID  Todo");
   while (vertexPrint != nullptr) {
-    cout << vertexPrint->id << ". " << vertexPrint->data << endl;
+    cout << vertexPrint->id << ".  " << vertexPrint->data << endl;
     vertexPrint = vertexPrint->next;
   }
 }
@@ -527,10 +544,10 @@ void showWhatTodo() {
   activeAccount->todos->insertionSortByDegreeAscending();
   gr::Vertex<string> *todo = activeAccount->todos->getVerticesHead();
   int count = 1;
-  app::printH2("ID \tTodo");
+  app::printH2("No  Todo");
   while (todo != nullptr) {
     if (todo->degree > 0) break;
-    cout << count << "\t" << todo->data << endl;
+    cout << count << ".  " << todo->data << endl;
     todo = todo->next;
     ++count;
   }

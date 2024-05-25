@@ -10,7 +10,7 @@
   <!-- - Hapus todo -->
   <!-- - Sort todo by degree -->
   <!-- - What to do -->
-  - Remove user
+  <!-- - Remove user -->
   - Sort todo
 
 
