@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "src/app.h"
 
 using namespace std;
 
@@ -18,7 +19,10 @@ struct Note {
   bool isFull() { return count == 10; }
 
   bool addContent(string content) {
-    if (isFull()) return false;
+    if (isFull()){
+      app::printError("Notebook is full!");
+      return false;
+    };
 
     this->content[count] = content;
     count++;

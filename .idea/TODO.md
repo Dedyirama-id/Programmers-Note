@@ -12,9 +12,11 @@
   <!-- - What to do -->
   <!-- - Remove user -->
   <!-- - Sort todo -->
+  <!-- - hapus note pada notebook -->
+  <!-- - edit note -->
+
   - Tambahkan menu debugging
   - Hapus relasi todo
-  - hapus note pada notebook
 
 
 # Bugs

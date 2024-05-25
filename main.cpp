@@ -31,6 +31,8 @@ void deleteNotebook(const string &note);
 void undoNotebookDelete();
 void removeTodo(const int id);
 void showWhatTodo();
+void editNote(const string &title);
+void editNote(tr::Node<Note> *target);
 
 // Global Object
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
@@ -55,7 +57,8 @@ app::CliMenu menu({
   "rt",
   "wtd",
   "sid",
-  "smp"
+  "smp",
+  "en"
   });
 
 int main() {
@@ -212,6 +215,10 @@ int main() {
       u::wait();
       break;
 
+    case 20: // en - edit note
+      if (!statusCheck(true, true)) continue;
+      editNote(menu.commandValue);
+      break;
     default:
       app::printWarning("Invalid command!");
       menu.reset();
@@ -244,30 +251,30 @@ bool statusCheck(const bool mustLoggedIn, const bool mustHaveCommandValue) {
 }
 
 void printHelp() {
-    app::printH2("# Help");
-    cout << "Available Commands:" << endl;
-    cout << "  exit          - Exit the application" << endl;
-    cout << "  help          - Show this help message" << endl;
-    cout << "  login         - Login to your account" << endl;
-    cout << "  logout        - Logout of your account" << endl;
-    cout << "  au            - Add a new user account" << endl;
-    cout << "  ru            - Remove a user account" << endl;
-    cout << "  do <todo>     - Add a new todo item" << endl;
-    cout << "  cn <notebook> - Create a new notebook" << endl;
-    cout << "  an <note>     - Add a new note to a notebook" << endl;
-    cout << "  on <notebook> - Open a notebook to view its contents" << endl;
-    cout << "  sn <notebook> - Send a notebook to another user" << endl;
-    cout << "  import        - Manage notebook imports" << endl;
-    cout << "  todos         - List all todos" << endl;
-    cout << "  dt <id>       - Display details of a specific todo" << endl;
-    cout << "  rn <notebook> - Remove a notebook" << endl;
-    cout << "  un            - Undo the last notebook deletion" << endl;
-    cout << "  rt <id>       - Remove a todo" << endl;
-    cout << "  wtd           - Show what todos can be done now" << endl;
-    cout << "  sid           - Sort todo list by ID" << endl;
-    cout << "  smp           - Sort todo list by most possible to do" << endl;
-    cout << endl;
-    cout << "Note: Some commands require you to be logged in and/or provide additional values." << endl;
+  app::printH2("# Help");
+  cout << "Available Commands:" << endl;
+  cout << "  exit          - Exit the application" << endl;
+  cout << "  help          - Show this help message" << endl;
+  cout << "  login         - Login to your account" << endl;
+  cout << "  logout        - Logout of your account" << endl;
+  cout << "  au            - Add a new user account" << endl;
+  cout << "  ru            - Remove a user account" << endl;
+  cout << "  do <todo>     - Add a new todo item" << endl;
+  cout << "  cn <notebook> - Create a new notebook" << endl;
+  cout << "  an <note>     - Add a new note to a notebook" << endl;
+  cout << "  on <notebook> - Open a notebook to view its contents" << endl;
+  cout << "  sn <notebook> - Send a notebook to another user" << endl;
+  cout << "  import        - Manage notebook imports" << endl;
+  cout << "  todos         - List all todos" << endl;
+  cout << "  dt <id>       - Display details of a specific todo" << endl;
+  cout << "  rn <notebook> - Remove a notebook" << endl;
+  cout << "  un            - Undo the last notebook deletion" << endl;
+  cout << "  rt <id>       - Remove a todo" << endl;
+  cout << "  wtd           - Show what todos can be done now" << endl;
+  cout << "  sid           - Sort todo list by ID" << endl;
+  cout << "  smp           - Sort todo list by most possible to do" << endl;
+  cout << endl;
+  cout << "Note: Some commands require you to be logged in and/or provide additional values." << endl;
 }
 
 Account *registerAccount() {
@@ -482,7 +489,7 @@ void openNotebook(const string &notebook) {
 
   app::printH2(bookNode->id);
   for (int i = 0; i < bookNode->data.count; ++i) {
-    cout << "- " << bookNode->data.content[i] << endl;
+    cout << "[" << i + 1 << "] " << bookNode->data.content[i] << endl;
   }
   u::wait();
 }
@@ -660,4 +667,72 @@ void showWhatTodo() {
     todo = todo->next;
     ++count;
   }
+}
+
+void editNote(const string &title) {
+  tr::Node<Note> *target = activeAccount->notes->search(title);
+  if (target == nullptr) {
+    app::printError("Invalid notebook!");
+    u::wait();
+    return;
+  }
+
+  app::Menu editNotebookMenu({ "Exit", "Add Note", "Edit Note", "Delete Note" });
+  while (true) {
+    system("cls");
+    app::printH1("Edit Notebook: " + title);
+    for(int i = 0; i < target->data.count; ++i) {
+      cout << "[" << i + 1 << "] " << target->data.content[i] << endl;
+    }
+
+    app::printDivider();
+    string stringInput;
+    int intInput;
+    int choice = editNotebookMenu.getChoice();
+    switch (choice) {
+    case 0:
+      return;
+    case 1:
+      stringInput = u::getStringInput("Enter new content: ");
+      target->data.addContent(stringInput);
+      break;
+    case 2:
+      editNote(target);
+      break;
+    case 3:
+      intInput = u::getIntInput("Number of content to delete: ") - 1;
+      if (intInput < 0 || intInput >= target->data.count) {
+        app::printError("Invalid index!");
+        u::wait();
+        break;
+      }
+
+      if (!u::getBoolInput("Are you sure you want to delete this note?")) {
+        app::printWarning("Note deletion cancelled!");
+        u::wait();
+        break;
+      }
+
+      target->data.deleteContent(intInput);
+      app::printSuccess("Note removed!");
+      u::wait();
+      break;
+    default:
+      break;
+    }
+  }
+}
+
+void editNote(tr::Node<Note> *target) {
+  int indexToEdit = u::getIntInput("Number of content to edit: ") - 1;
+  if (indexToEdit < 0 || indexToEdit >= target->data.count) {
+    app::printError("Invalid index!");
+    u::wait();
+    return;
+  }
+
+  string newContent = u::getStringInput("Enter new content: ");
+  target->data.content[indexToEdit] = newContent;
+  app::printSuccess("Content updated!");
+  u::wait();
 }
