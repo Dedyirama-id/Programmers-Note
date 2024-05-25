@@ -26,6 +26,7 @@ void printTodos();
 void printTodoDetails(const int id);
 void removeNote(const string &note);
 void undoNotebookDelete();
+void removeTodo(const int id);
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 Account *activeAccount = nullptr;
@@ -46,7 +47,8 @@ app::CliMenu menu({
   "todos",
   "dt",
   "rn",
-  "un"
+  "un",
+  "rt"
   });
 
 int main() {
@@ -168,8 +170,7 @@ int main() {
 
       try {
         printTodoDetails(stoi(menu.commandValue));
-      }
-      catch (...) {
+      } catch (...) {
         app::printWarning("Invalid todo id!");
         u::wait();
       }
@@ -188,6 +189,22 @@ int main() {
 
     case 15:
       undoNotebookDelete();
+      break;
+
+    case 16:
+      if (menu.commandValue == "") {
+        app::printWarning("Todo id cannot be empty!");
+        app::printWarning("Try \"dt <id>\" to print todo details!");
+        u::wait();
+        continue;
+      }
+
+      try {
+        removeTodo(stoi(menu.commandValue));
+      } catch (...) {
+        app::printWarning("Invalid todo id!");
+        u::wait();
+      }
       break;
     default:
       app::printWarning("Invalid command!");
@@ -477,5 +494,16 @@ void undoNotebookDelete() {
   activeAccount->notes->insert(currentNote.title, currentNote);
   activeAccount->NotesStack->pop();
   app::printSuccess("Note restored!");
+  u::wait();
+}
+
+void removeTodo(const int id) {
+  bool success = activeAccount->todos->deleteVertexById(id);
+  if (!success) {
+    app::printError("Todo not found!");
+    u::wait();
+    return;
+  }
+  app::printSuccess("Todo removed!");
   u::wait();
 }

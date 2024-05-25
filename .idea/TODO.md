@@ -5,9 +5,9 @@
   <!-- - Tambahkan fitur menerima sharing note -->
   <!-- - Tambah todo dengan relasi -->
   <!-- - Tampilkan todo -->
+  <!-- - Hapus Notebook -->
+  <!-- - Undo hapus notebook -->
   - Hapus todo
-  - Undo hapus todo
-  - Hapus note
   - Sort todo by degree
   - What to do
   - Remove user

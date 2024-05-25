@@ -70,12 +70,9 @@ namespace gr {
 
     bool deleteEdge(Edge<T> *edge) {
       if (edge == nullptr) return false;
-      if (edge->prev != nullptr) {
-        edge->prev->next = edge->next;
-      }
-      if (edge->next != nullptr) {
-        edge->next->prev = edge->prev;
-      }
+      if (edge->prev != nullptr) edge->prev->next = edge->next;
+      if (edge->next != nullptr) edge->next->prev = edge->prev;
+      if (edge == edgeList) edgeList = edge->next;
 
       degree--;
       delete edge;
@@ -96,7 +93,7 @@ namespace gr {
   public:
     int vertexCount = 0;
 
-    Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) { }
+    Graph() : verticesHead(nullptr), verticesTail(nullptr), vertexCount(0) {}
 
     ~Graph() {
       destroyAllVertices();
@@ -163,11 +160,17 @@ namespace gr {
 
     bool deleteVertexByPtr(Vertex<T> *vertex) {
       if (vertex == nullptr) return false;
-      if (vertex->edgeList != nullptr) destroyRelationshipToVertex(vertex->id);
 
+      // Hapus semua edge dari vertex ini ke vertex lain
+      while (vertex->edgeList != nullptr) {
+        vertex->deleteEdge(vertex->edgeList);
+      }
+
+      // Hapus vertex dari daftar linked list vertex
       if (vertex->prev != nullptr) vertex->prev->next = vertex->next;
       if (vertex->next != nullptr) vertex->next->prev = vertex->prev;
       if (vertex == verticesHead) verticesHead = verticesHead->next;
+      if (vertex == verticesTail) verticesTail = verticesTail->prev;
 
       vertexCount--;
       delete vertex;
@@ -177,6 +180,11 @@ namespace gr {
     bool deleteVertexById(unsigned int id) {
       Vertex<T> *vertex = searchById(id);
       if (vertex == nullptr) return false;
+
+      // Hapus semua edge yang mengarah ke vertex yang akan dihapus
+      destroyRelationshipToVertex(id);
+
+      // Hapus vertex dari daftar vertex
       return deleteVertexByPtr(vertex);
     }
 
