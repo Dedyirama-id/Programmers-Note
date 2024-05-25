@@ -12,6 +12,7 @@
 using namespace std;
 
 // Function Prototype
+bool statusCheck(app::CliMenu menu, bool mustLoggedIn = true, bool mustHaveCommandValue = true);
 void printHelp();
 unsigned int usernameToId(const string &username);
 Account *registerAccount();
@@ -72,7 +73,8 @@ int main() {
 
   while (true) {
     system("cls");
-    app::printH1("# Programmers Notes - " + u::toUppercase(activeAccount->username));
+    if (activeAccount == nullptr) app::printH1("# Programmers Notes: Not logged in");
+    else app::printH1("# Programmers Notes: " + u::toUppercase(activeAccount->username));
     menu.getCommand();
 
     switch (menu.commandNum) {
@@ -95,14 +97,19 @@ int main() {
       break;
 
     case 3: // logout
+      if (activeAccount == nullptr) {
+        app::printWarning("Not logged in!");
+        u::wait();
+        continue;
+      }
+
       activeAccount = nullptr;
       app::printSuccess("Logged out!");
       u::wait();
-
-      while (activeAccount == nullptr) activeAccount = login();
       break;
 
     case 4: // au - add user
+      if (!statusCheck(menu, false, false)) continue;
       app::printH2("Create new user account");
       registerAccount();
       break;
@@ -113,75 +120,43 @@ int main() {
       break;
 
     case 6: // do - add todo
-      if (menu.commandValue == "") {
-        app::printWarning("Todo cannot be empty!");
-        app::printWarning("Try \"do <todo>\" to add a new todo!");
-        u::wait();
-        continue;
-      }
-
+      if (!statusCheck(menu, true, true)) continue;
       addTodo(menu.commandValue);
       break;
 
     case 7: // cn - create notebook
-      if (menu.commandValue == "") {
-        app::printWarning("Notebook name cannot be empty!");
-        app::printWarning("Try \"cn <notebook>\" to add a new notebook!");
-        u::wait();
-        continue;
-      }
+      if (!statusCheck(menu, true, true)) continue;
       addNotebook(menu.commandValue);
       break;
 
     case 8: // an - add note
-      if (menu.commandValue == "") {
-        app::printWarning("Note cannot be empty!");
-        app::printWarning("Try \"an <note>\" to add note!");
-        u::wait();
-        continue;
-      }
+      if (!statusCheck(menu, true, true)) continue;
       addNote(menu.commandValue);
       break;
 
     case 9: // on - open notebook
-      if (menu.commandValue == "") {
-        app::printWarning("Notebook name cannot be empty!");
-        app::printWarning("Try \"on <notebook>\" to open note!");
-        u::wait();
-        continue;
-      }
-
+      if (!statusCheck(menu, true, true)) continue;
       openNotebook(menu.commandValue);
       break;
 
     case 10: // sn - send notebook
-      if (menu.commandValue == "") {
-        app::printWarning("User cannot be empty!");
-        app::printWarning("Try \"send <user>\" to send email!");
-        u::wait();
-        continue;
-      }
-
+      if (!statusCheck(menu, true, true)) continue;
       sendNotebook(menu.commandValue);
       break;
 
     case 11: // import - manage notebook import
+      if (!statusCheck(menu, true, true)) continue;
       manageImport();
       break;
 
     case 12: // todos
+      if (!statusCheck(menu, true, false)) continue;
       printTodos();
       u::wait();
       break;
 
     case 13: // dt - print todo details
-      if (menu.commandValue == "") {
-        app::printWarning("Todo id cannot be empty!");
-        app::printWarning("Try \"dt <id>\" to print todo details!");
-        u::wait();
-        continue;
-      }
-
+      if (!statusCheck(menu, true, true)) continue;
       try {
         printTodoDetails(stoi(menu.commandValue));
       } catch (...) {
@@ -191,6 +166,7 @@ int main() {
       break;
 
     case 14: // rn - remove notebook
+      if (!statusCheck(menu, true, true)) continue;
       if (menu.commandValue == "") {
         app::printWarning("Todo id cannot be empty!");
         app::printWarning("Try \"rn <title>\" to remove note!");
@@ -202,17 +178,12 @@ int main() {
       break;
 
     case 15: // un - undo notebook delete
+      if (!statusCheck(menu, true, true)) continue;
       undoNotebookDelete();
       break;
 
     case 16: // rm - remove todo
-      if (menu.commandValue == "") {
-        app::printWarning("Todo id cannot be empty!");
-        app::printWarning("Try \"dt <id>\" to print todo details!");
-        u::wait();
-        continue;
-      }
-
+      if (!statusCheck(menu, true, true)) continue;
       try {
         removeTodo(stoi(menu.commandValue));
       } catch (...) {
@@ -222,11 +193,13 @@ int main() {
       break;
 
     case 17: // wtd - show what to do
+      if (!statusCheck(menu, true, true)) continue;
       showWhatTodo();
       u::wait();
       break;
 
     case 18: // sid - sort todo list by id
+      if (!statusCheck(menu, true, true)) continue;
       app::printH2("Sort todo list by Id");
       activeAccount->todos->insertionSortById();
       printTodos();
@@ -234,6 +207,7 @@ int main() {
       break;
 
     case 19: // smp - sort todo list by most possible to do
+      if (!statusCheck(menu, true, true)) continue;
       app::printH2("Sort todo list by most possible");
       activeAccount->todos->insertionSortByDegreeAscending();
       printTodos();
@@ -250,6 +224,24 @@ int main() {
     menu.commandNum = -1;
   }
   return 0;
+}
+
+bool statusCheck(app::CliMenu menu, bool mustLoggedIn, bool mustHaveCommandValue) {
+  if (mustLoggedIn && activeAccount == nullptr) {
+    app::printWarning("You must login first!");
+    u::wait();
+    return false;
+  }
+
+  if (mustHaveCommandValue && menu.commandValue == "") {
+    app::printWarning("Command value cannot be empty!");
+    app::printWarning("Try \"<command> <value>\"!");
+    cout << "For more info: type \"help\"" << endl;
+    u::wait();
+    return false;
+  }
+
+  return true;
 }
 
 void printHelp() {
@@ -289,6 +281,7 @@ Account *login() {
   Account *account = accounts->getRecord(id);
   if (account == nullptr) {
     app::printError("Account not found!");
+    u::wait();
     return nullptr;
   }
 
@@ -315,6 +308,7 @@ void removeAccount() {
   Account *account = accounts->getRecord(id);
   if (account == nullptr) {
     app::printError("Account not found!");
+    u::wait();
     return;
   }
 
@@ -546,7 +540,7 @@ void removeTodo(const int id) {
 }
 
 void showWhatTodo() {
-  if(activeAccount->todos->isEmpty()) {
+  if (activeAccount->todos->isEmpty()) {
     app::printSuccess("Nothing to do! Todo list is empty!");
     u::wait();
     return;
