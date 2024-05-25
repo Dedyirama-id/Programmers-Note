@@ -2,6 +2,7 @@
 #include <string>
 #include "graph.h"
 #include "binarytree.h"
+#include "queue.h"
 #include "note.h"
 
 #define MIN_PASSWORD_LENGTH 5
@@ -10,6 +11,7 @@
 using namespace std;
 using namespace gr;
 using namespace tr;
+using namespace qu;
 
 struct Account {
 private:
@@ -20,10 +22,12 @@ public:
 
   Graph<string> *todos;
   BinaryTree<Note> *notes;
+  Queue<Note> *notesQueue;
+
 
   Account() : id(EMPTY), username(""), password("") {}
 
-  Account(unsigned int id, const string &username, const string &password, Graph<string> *todos, BinaryTree<Note> *notes)
+  Account(unsigned int id, const string &username, const string &password)
     : id(id), username(username), password(hashing(password)), todos(todos), notes(notes)  {}
 
   ~Account() {}

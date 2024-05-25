@@ -3,6 +3,7 @@
 #include "src/hashtable.h"
 #include "src/graph.h"
 #include "src/binarytree.h"
+#include "src/queue.h"
 #include "src/account.h"
 #include "src/note.h"
 #include "src/app.h"
@@ -19,6 +20,8 @@ void addTodo(const string &todo);
 void addNotebook(const string &notebook);
 void addNote(const string &note);
 void openNotebook(const string &notebook);
+void sendNotebook(const string &notebook);
+void manageImport();
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 
@@ -35,6 +38,8 @@ app::CliMenu menu({
   "cn",
   "an",
   "on",
+  "sn",
+  "import"
   });
 
 int main() {
@@ -125,6 +130,21 @@ int main() {
 
       openNotebook(menu.commandValue);
       break;
+
+    case 10:
+      if (menu.commandValue == "") {
+        app::printWarning("User cannot be empty!");
+        app::printWarning("Try \"send <user>\" to send email!");
+        u::wait();
+        continue;
+      }
+
+      sendNotebook(menu.commandValue);
+      break;
+
+    case 11:
+      manageImport();
+      break;
     default:
       app::printWarning("Invalid command!");
       u::wait();
@@ -155,7 +175,12 @@ Account *registerAccount() {
 
   gr::Graph<string> *todos = new gr::Graph<string>();
   tr::BinaryTree<Note> *notes = new tr::BinaryTree<Note>();
-  Account newAccount(id, username, password, todos, notes);
+  qu::Queue<Note> *notesQueue = new qu::Queue<Note>();
+  Account newAccount(id, username, password);
+  newAccount.todos = todos;
+  newAccount.notes = notes;
+  newAccount.notesQueue = notesQueue;
+
   accounts->addRecord(newAccount);
   return accounts->getRecord(id);
 }
@@ -250,5 +275,60 @@ void openNotebook(const string &notebook) {
   for (int i = 0; i < bookNode->data.count; ++i) {
     cout << "- " << bookNode->data.content[i] << endl;
   }
+  u::wait();
+}
+
+void sendNotebook(const string &notebook) {
+  tr::Node<Note> *bookNode = activeAccount->notes->search(notebook);
+  if (bookNode == nullptr) {
+    app::printError("Notebook not found!");
+    u::wait();
+    return;
+  }
+
+  string username = u::getStringInput("Send to user: ");
+  unsigned int id = usernameToId(username);
+
+  Account *targetAccount = accounts->getRecord(id);
+  if (targetAccount == nullptr) {
+    app::printError("User not found!");
+    u::wait();
+    return;
+  }
+
+  targetAccount->notesQueue->enqueue(bookNode->data);
+  app::printSuccess("Note sent!");
+  u::wait();
+}
+
+void manageImport() {
+  app::Menu importMenu({ "Exit", "Accept", "Reject" });
+  while (activeAccount->notesQueue->isEmpty() == false) {
+    Note currentNote = activeAccount->notesQueue->peek();
+    cout << currentNote.title << endl;
+
+    for (int i = 0; i < currentNote.count; ++i) {
+      cout << "- " << currentNote.content[i] << endl;
+    }
+
+    int choice = importMenu.getChoice();
+    switch (choice) {
+    case 0:
+      return;
+    case 1:
+      activeAccount->notes->insert(currentNote.title, currentNote);
+      activeAccount->notesQueue->dequeue();
+      app::printSuccess("Note accepted!");
+      break;
+    case 2:
+      activeAccount->notesQueue->dequeue();
+      app::printError("Note rejected!");
+      break;
+    default:
+      break;
+    }
+  }
+
+  app::printWarning("Queue is empty!");
   u::wait();
 }
