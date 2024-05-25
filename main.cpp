@@ -244,8 +244,30 @@ bool statusCheck(const bool mustLoggedIn, const bool mustHaveCommandValue) {
 }
 
 void printHelp() {
-  app::printH2("# Help");
-  cout << "No help yet :(" << endl;
+    app::printH2("# Help");
+    cout << "Available Commands:" << endl;
+    cout << "  exit          - Exit the application" << endl;
+    cout << "  help          - Show this help message" << endl;
+    cout << "  login         - Login to your account" << endl;
+    cout << "  logout        - Logout of your account" << endl;
+    cout << "  au            - Add a new user account" << endl;
+    cout << "  ru            - Remove a user account" << endl;
+    cout << "  do <todo>     - Add a new todo item" << endl;
+    cout << "  cn <notebook> - Create a new notebook" << endl;
+    cout << "  an <note>     - Add a new note to a notebook" << endl;
+    cout << "  on <notebook> - Open a notebook to view its contents" << endl;
+    cout << "  sn <notebook> - Send a notebook to another user" << endl;
+    cout << "  import        - Manage notebook imports" << endl;
+    cout << "  todos         - List all todos" << endl;
+    cout << "  dt <id>       - Display details of a specific todo" << endl;
+    cout << "  rn <notebook> - Remove a notebook" << endl;
+    cout << "  un            - Undo the last notebook deletion" << endl;
+    cout << "  rt <id>       - Remove a todo" << endl;
+    cout << "  wtd           - Show what todos can be done now" << endl;
+    cout << "  sid           - Sort todo list by ID" << endl;
+    cout << "  smp           - Sort todo list by most possible to do" << endl;
+    cout << endl;
+    cout << "Note: Some commands require you to be logged in and/or provide additional values." << endl;
 }
 
 Account *registerAccount() {
