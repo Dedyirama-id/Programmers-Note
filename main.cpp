@@ -11,6 +11,7 @@
 
 using namespace std;
 
+// Function Prototype
 void printHelp();
 unsigned int usernameToId(const string &username);
 Account *registerAccount();
@@ -29,9 +30,9 @@ void undoNotebookDelete();
 void removeTodo(const int id);
 void showWhatTodo();
 
+// Global Object
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 Account *activeAccount = nullptr;
-
 app::CliMenu menu({
   "exit",
   "help",
@@ -57,7 +58,7 @@ app::CliMenu menu({
 
 int main() {
   system("cls");
-  app::printH1("# Create First Account");
+  app::printH2("You need to create an account first!");
   registerAccount();
 
   system("cls");
@@ -75,13 +76,15 @@ int main() {
     menu.getCommand();
 
     switch (menu.commandNum) {
-    case 0:
+    case 0: // exit
       break;
-    case 1:
+
+    case 1: // help
       printHelp();
       u::wait();
       break;
-    case 2:
+
+    case 2: // login
       if (activeAccount != nullptr) {
         app::printWarning("Already logged in!");
         u::wait();
@@ -90,22 +93,26 @@ int main() {
 
       activeAccount = login();
       break;
-    case 3:
+
+    case 3: // logout
       activeAccount = nullptr;
       app::printSuccess("Logged out!");
       u::wait();
 
       while (activeAccount == nullptr) activeAccount = login();
       break;
-    case 4:
+
+    case 4: // au - add user
       app::printH2("Create new user account");
       registerAccount();
       break;
-    case 5:
+
+    case 5: // ru - remove user
       app::printH2("Remove user account");
       removeAccount();
       break;
-    case 6:
+
+    case 6: // do - add todo
       if (menu.commandValue == "") {
         app::printWarning("Todo cannot be empty!");
         app::printWarning("Try \"do <todo>\" to add a new todo!");
@@ -115,7 +122,8 @@ int main() {
 
       addTodo(menu.commandValue);
       break;
-    case 7:
+
+    case 7: // cn - create notebook
       if (menu.commandValue == "") {
         app::printWarning("Notebook name cannot be empty!");
         app::printWarning("Try \"cn <notebook>\" to add a new notebook!");
@@ -124,7 +132,8 @@ int main() {
       }
       addNotebook(menu.commandValue);
       break;
-    case 8:
+
+    case 8: // an - add note
       if (menu.commandValue == "") {
         app::printWarning("Note cannot be empty!");
         app::printWarning("Try \"an <note>\" to add note!");
@@ -133,7 +142,8 @@ int main() {
       }
       addNote(menu.commandValue);
       break;
-    case 9:
+
+    case 9: // on - open notebook
       if (menu.commandValue == "") {
         app::printWarning("Notebook name cannot be empty!");
         app::printWarning("Try \"on <notebook>\" to open note!");
@@ -144,7 +154,7 @@ int main() {
       openNotebook(menu.commandValue);
       break;
 
-    case 10:
+    case 10: // sn - send notebook
       if (menu.commandValue == "") {
         app::printWarning("User cannot be empty!");
         app::printWarning("Try \"send <user>\" to send email!");
@@ -155,16 +165,16 @@ int main() {
       sendNotebook(menu.commandValue);
       break;
 
-    case 11:
+    case 11: // import - manage notebook import
       manageImport();
       break;
 
-    case 12:
+    case 12: // todos
       printTodos();
       u::wait();
       break;
 
-    case 13:
+    case 13: // dt - print todo details
       if (menu.commandValue == "") {
         app::printWarning("Todo id cannot be empty!");
         app::printWarning("Try \"dt <id>\" to print todo details!");
@@ -180,7 +190,7 @@ int main() {
       }
       break;
 
-    case 14:
+    case 14: // rn - remove notebook
       if (menu.commandValue == "") {
         app::printWarning("Todo id cannot be empty!");
         app::printWarning("Try \"rn <title>\" to remove note!");
@@ -191,11 +201,11 @@ int main() {
       removeNote(menu.commandValue);
       break;
 
-    case 15:
+    case 15: // un - undo notebook delete
       undoNotebookDelete();
       break;
 
-    case 16:
+    case 16: // rm - remove todo
       if (menu.commandValue == "") {
         app::printWarning("Todo id cannot be empty!");
         app::printWarning("Try \"dt <id>\" to print todo details!");
@@ -211,24 +221,25 @@ int main() {
       }
       break;
 
-    case 17:
+    case 17: // wtd - show what to do
       showWhatTodo();
       u::wait();
       break;
 
-    case 18:
+    case 18: // sid - sort todo list by id
       app::printH2("Sort todo list by Id");
       activeAccount->todos->insertionSortById();
       printTodos();
       u::wait();
       break;
 
-    case 19:
+    case 19: // smp - sort todo list by most possible to do
       app::printH2("Sort todo list by most possible");
       activeAccount->todos->insertionSortByDegreeAscending();
       printTodos();
       u::wait();
       break;
+
     default:
       app::printWarning("Invalid command!");
       u::wait();
