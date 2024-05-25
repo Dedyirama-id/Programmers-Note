@@ -27,6 +27,7 @@ void printTodoDetails(const int id);
 void removeNote(const string &note);
 void undoNotebookDelete();
 void removeTodo(const int id);
+void showWhatTodo();
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 Account *activeAccount = nullptr;
@@ -48,7 +49,8 @@ app::CliMenu menu({
   "dt",
   "rn",
   "un",
-  "rt"
+  "rt",
+  "wtd"
   });
 
 int main() {
@@ -205,6 +207,11 @@ int main() {
         app::printWarning("Invalid todo id!");
         u::wait();
       }
+      break;
+
+    case 17:
+      showWhatTodo();
+      u::wait();
       break;
     default:
       app::printWarning("Invalid command!");
@@ -506,4 +513,23 @@ void removeTodo(const int id) {
   }
   app::printSuccess("Todo removed!");
   u::wait();
+}
+
+void showWhatTodo() {
+  if(activeAccount->todos->isEmpty()) {
+    app::printSuccess("Nothing to do! Todo list is empty!");
+    u::wait();
+    return;
+  }
+
+  activeAccount->todos->insertionSortByDegreeAscending();
+  gr::Vertex<string> *todo = activeAccount->todos->getVerticesHead();
+  int count = 1;
+  app::printH2("ID \tTodo");
+  while (todo != nullptr) {
+    if (todo->degree > 0) break;
+    cout << count << "\t" << todo->data << endl;
+    todo = todo->next;
+    ++count;
+  }
 }

@@ -181,10 +181,7 @@ namespace gr {
       Vertex<T> *vertex = searchById(id);
       if (vertex == nullptr) return false;
 
-      // Hapus semua edge yang mengarah ke vertex yang akan dihapus
       destroyRelationshipToVertex(id);
-
-      // Hapus vertex dari daftar vertex
       return deleteVertexByPtr(vertex);
     }
 
@@ -199,7 +196,7 @@ namespace gr {
     void displayGraph() {
       Vertex<T> *current = verticesHead;
       while (current != nullptr) {
-        cout << "[" << current->id << "] " << " -> ";
+        cout << current->id << "(" << current->degree << ")" << " -> ";
         Edge<T> *currentEdge = current->edgeList;
         while (currentEdge != nullptr) {
           cout << currentEdge->vertexRef->id;
@@ -286,6 +283,120 @@ namespace gr {
 
       inFile.close();
       return true;
+    }
+
+    void insertionSortById() {
+      if (!verticesHead || !verticesHead->next) return;
+
+      Vertex<T> *sorted = nullptr;
+      Vertex<T> *current = verticesHead;
+
+      while (current) {
+        Vertex<T> *next = current->next;
+
+        if (!sorted || current->id < sorted->id) {
+          current->next = sorted;
+          if (sorted) sorted->prev = current;
+          sorted = current;
+        } else {
+          Vertex<T> *tmp = sorted;
+          while (tmp->next && current->id >= tmp->next->id) {
+            tmp = tmp->next;
+          }
+
+          current->next = tmp->next;
+          if (tmp->next) tmp->next->prev = current;
+          tmp->next = current;
+          current->prev = tmp;
+        }
+
+        current = next;
+      }
+
+      verticesHead = sorted;
+      verticesHead->prev = nullptr;
+      // Update verticesTail
+      Vertex<T> *tailUpdate = verticesHead;
+      while (tailUpdate->next) {
+        tailUpdate = tailUpdate->next;
+      }
+      verticesTail = tailUpdate;
+    }
+
+    void insertionSortByDegreeAscending() {
+      if (!verticesHead || !verticesHead->next) return;
+
+      Vertex<T> *sorted = nullptr;
+      Vertex<T> *current = verticesHead;
+
+      while (current) {
+        Vertex<T> *next = current->next;
+
+        if (!sorted || current->degree < sorted->degree) {
+          current->next = sorted;
+          if (sorted) sorted->prev = current;
+          sorted = current;
+        } else {
+          Vertex<T> *tmp = sorted;
+          while (tmp->next && current->degree >= tmp->next->degree) {
+            tmp = tmp->next;
+          }
+
+          current->next = tmp->next;
+          if (tmp->next) tmp->next->prev = current;
+          tmp->next = current;
+          current->prev = tmp;
+        }
+
+        current = next;
+      }
+
+      verticesHead = sorted;
+      verticesHead->prev = nullptr;
+      // Update verticesTail
+      Vertex<T> *tailUpdate = verticesHead;
+      while (tailUpdate->next) {
+        tailUpdate = tailUpdate->next;
+      }
+      verticesTail = tailUpdate;
+    }
+
+    void insertionSortByDegreeDescending() {
+      if (!verticesHead || !verticesHead->next) return;
+
+      Vertex<T> *sorted = nullptr;
+      Vertex<T> *current = verticesHead;
+
+      while (current) {
+        Vertex<T> *next = current->next;
+
+        if (!sorted || current->degree > sorted->degree) {
+          current->next = sorted;
+          if (sorted) sorted->prev = current;
+          sorted = current;
+        } else {
+          Vertex<T> *tmp = sorted;
+          while (tmp->next && current->degree <= tmp->next->degree) {
+            tmp = tmp->next;
+          }
+
+          current->next = tmp->next;
+          if (tmp->next) tmp->next->prev = current;
+          tmp->next = current;
+          current->prev = tmp;
+        }
+
+        current = next;
+      }
+
+      verticesHead = sorted;
+      verticesHead->prev = nullptr;
+      // Update verticesTail
+      Vertex<T> *tailUpdate = verticesHead;
+      while (tailUpdate->next) {
+        tailUpdate = tailUpdate->next;
+      }
+      verticesTail = tailUpdate;
     }
   };
 }

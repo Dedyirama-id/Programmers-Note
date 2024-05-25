@@ -7,9 +7,9 @@
   <!-- - Tampilkan todo -->
   <!-- - Hapus Notebook -->
   <!-- - Undo hapus notebook -->
-  - Hapus todo
-  - Sort todo by degree
-  - What to do
+  <!-- - Hapus todo -->
+  <!-- - Sort todo by degree -->
+  <!-- - What to do -->
   - Remove user
 
 
