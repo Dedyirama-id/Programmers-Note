@@ -60,6 +60,8 @@ Once the application is running, you can use the following commands:
 - `wtd`           : Show what todos can be done now
 - `sid`           : Sort todo list by ID
 - `smp`           : Sort todo list by most possible to do
+- `en <id>`       : Edit note by note ID
+- `et <id>`       : Edit todo by todo ID
 
 ## Author
 - Dedy Irama (23051204356)

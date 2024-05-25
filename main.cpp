@@ -596,8 +596,6 @@ void manageImport() {
 }
 
 void printTodos() {
-  app::printH1("Todos");
-
   gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
   app::printH2("ID  Todo");
   while (vertexPrint != nullptr) {
