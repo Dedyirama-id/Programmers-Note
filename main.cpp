@@ -110,7 +110,6 @@ int main() {
       break;
 
     case 4: // au - add user
-      if (!statusCheck(false, false)) continue;
       app::printH2("Create new user account");
       registerAccount();
       break;
@@ -146,7 +145,7 @@ int main() {
       break;
 
     case 11: // import - manage notebook import
-      if (!statusCheck(true, true)) continue;
+      if (!statusCheck(true, false)) continue;
       manageImport();
       break;
 
@@ -181,7 +180,7 @@ int main() {
       break;
 
     case 15: // un - undo notebook delete
-      if (!statusCheck(true, true)) continue;
+      if (!statusCheck(true, false)) continue;
       undoNotebookDelete();
       break;
 
@@ -203,7 +202,7 @@ int main() {
       break;
 
     case 18: // sid - sort todo list by id
-      if (!statusCheck(true, true)) continue;
+      if (!statusCheck(true, false)) continue;
       app::printH2("Sort todo list by Id");
       activeAccount->todos->insertionSortById();
       printTodos();
@@ -211,7 +210,7 @@ int main() {
       break;
 
     case 19: // smp - sort todo list by most possible to do
-      if (!statusCheck(true, true)) continue;
+      if (!statusCheck(true, false)) continue;
       app::printH2("Sort todo list by most possible");
       activeAccount->todos->insertionSortByDegreeAscending();
       printTodos();
@@ -288,6 +287,8 @@ void printHelp() {
   cout << "  wtd           - Show what todos can be done now" << endl;
   cout << "  sid           - Sort todo list by ID" << endl;
   cout << "  smp           - Sort todo list by most possible to do" << endl;
+  cout << "  en <id>       - Edit a note by note ID" << endl;
+  cout << "  et <id>       - Edit a todo by todo ID" << endl;
   cout << endl;
   cout << "Note: Some commands require you to be logged in and/or provide additional values." << endl;
 }
@@ -446,7 +447,7 @@ void addTodo(const string &todo) {
       return;
     }
 
-    int todoIdInput = u::getIntInput("Todo id that depends on " + todo + ": (0 to skip) ");
+    int todoIdInput = u::getIntInput("Todo id that depends on " + todo + ": (0 to done) ");
 
     if (todoIdInput == 0) break;
     gr::Vertex<string> *targetVertex = activeAccount->todos->searchById(todoIdInput);
@@ -528,12 +529,12 @@ void sendNotebook(const string &notebook) {
   }
 
   targetAccount->notesQueue->enqueue(bookNode->data);
-  app::printSuccess("Note sent!");
+  app::printSuccess("Notebook sent!");
   u::wait();
 }
 
 void manageImport() {
-  app::Menu importMenu({ "Exit", "Accept", "Reject" });
+  app::Menu importMenu({ "Exit [x]", "Accept", "Reject" });
   while (activeAccount->notesQueue->isEmpty() == false) {
     Note currentNote = activeAccount->notesQueue->peek();
     cout << currentNote.title << endl;
@@ -555,11 +556,11 @@ void manageImport() {
 
       activeAccount->notes->insert(currentNote.title, currentNote);
       activeAccount->notesQueue->dequeue();
-      app::printSuccess("Note accepted!");
+      app::printSuccess("Notebook accepted!");
       break;
     case 2:
       activeAccount->notesQueue->dequeue();
-      app::printError("Note rejected!");
+      app::printError("Notebook rejected!");
       break;
     default:
       break;
@@ -607,13 +608,13 @@ void printTodoDetails(const int id) {
 void deleteNotebook(const string &title) {
   tr::Node<Note> *current = activeAccount->notes->search(title);
   if (current == nullptr) {
-    app::printError("Invalid note!");
+    app::printError("Invalid notebook!");
     u::wait();
     return;
   }
 
   if (!u::getBoolInput("Are you sure you want to delete this note?")) {
-    app::printWarning("Note deletion cancelled!");
+    app::printWarning("Notebook deletion cancelled!");
     u::wait();
     return;
   }
@@ -621,7 +622,7 @@ void deleteNotebook(const string &title) {
   Note toStack = current->data;
   activeAccount->NotesStack->push(toStack);
   activeAccount->notes->deleteNode(title);
-  app::printSuccess("Note removed!");
+  app::printSuccess("Notebook removed!");
   u::wait();
 }
 
@@ -691,7 +692,7 @@ void editNote(const string &title) {
     return;
   }
 
-  app::Menu editNotebookMenu({ "Exit", "Add Note", "Edit Note", "Delete Note" });
+  app::Menu editNotebookMenu({ "Back [x]", "Add Note", "Edit Note", "Delete Note" });
   while (true) {
     system("cls");
     app::printH1("Edit Notebook: " + title);
@@ -759,7 +760,7 @@ void editTodo(const int id) {
     return;
   }
 
-  app::Menu editTodoMenu({ "Exit", "Edit Todo", "Remove Todo Dependencies" });
+  app::Menu editTodoMenu({ "Back [x]", "Edit Todo", "Remove Todo Dependencies" });
   while (true) {
     system("cls");
     app::printH1("Edit Todo: " + target->data);
