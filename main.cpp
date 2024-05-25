@@ -228,13 +228,54 @@ void removeAccount() {
 
 void addTodo(const string &todo) {
   unsigned int todoId = activeAccount->todos->vertexCount + 1;
-  bool success = activeAccount->todos->addVertex(todoId, todo);
 
+  gr::Vertex<string> *vertex = activeAccount->todos->getVerticesHead();
+  while (vertex != nullptr) {
+    if (vertex->data == todo) {
+      app::printError("Todo already exists!");
+      u::wait();
+      return;
+    }
+    vertex = vertex->next;
+  }
+
+  bool success = activeAccount->todos->addVertex(todoId, todo);
   if (!success) {
     app::printError("Failed to add todo!");
     u::wait();
     return;
   }
+
+  gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
+  if (activeAccount->todos->vertexCount <= 1) {
+    app::printSuccess("Todo added!");
+    u::wait();
+    return;
+  }
+
+  while (true) {
+    system("cls");
+    app::printH1("# Todos Relationship: " + todo);
+    app::printH2("ID Todo");
+    while (vertexPrint != nullptr) {
+      if (vertexPrint->id != todoId && vertexPrint->searchEdgeById(todoId) == false) cout << vertexPrint->id << ". " << vertexPrint->data << endl;
+
+      vertexPrint = vertexPrint->next;
+    }
+
+    int todoIdInput = u::getIntInput("Todo id that depends on this: (0 to skip) ");
+    if (todoIdInput == 0) break;
+
+    if (activeAccount->todos->searchById(todoIdInput) == nullptr) {
+      app::printError("Invalid todo id!");
+      u::wait();
+      continue;
+    } else {
+      activeAccount->todos->addEdgeById(todoIdInput, todoId);
+      continue;
+    }
+  }
+
   app::printSuccess("Todo added!");
   u::wait();
 }
@@ -331,4 +372,14 @@ void manageImport() {
 
   app::printWarning("Queue is empty!");
   u::wait();
+}
+
+void printTodos() {
+  app::printH1("Todos");
+  
+  gr::Vertex<string> *vertexPrint = activeAccount->todos->getVerticesHead();
+  while (vertexPrint != nullptr) {
+    cout << vertexPrint->id << ". " << vertexPrint->data << endl;
+    vertexPrint = vertexPrint->next;
+  }
 }
