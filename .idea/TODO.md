@@ -3,8 +3,8 @@
   <!-- - Buat test untuk keseluruhan fungsi terutama fungsi save & load -->
   <!-- - Tambahkan fitur untuk mengirim note -->
   <!-- - Tambahkan fitur menerima sharing note -->
-  - Tambah todo dengan relasi
-  - Tampilkan todo
+  <!-- - Tambah todo dengan relasi -->
+  <!-- - Tampilkan todo -->
   - Hapus todo
   - Undo hapus todo
   - Hapus note

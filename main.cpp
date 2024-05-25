@@ -24,6 +24,8 @@ void sendNotebook(const string &notebook);
 void manageImport();
 void printTodos();
 void printTodoDetails(const int id);
+void removeNote(const string &note);
+void undoNotebookDelete();
 
 ht::HashTable<Account> *accounts = new ht::HashTable<Account>();
 Account *activeAccount = nullptr;
@@ -42,7 +44,9 @@ app::CliMenu menu({
   "sn",
   "import",
   "todos",
-  "dt"
+  "dt",
+  "rn",
+  "un"
   });
 
 int main() {
@@ -164,10 +168,26 @@ int main() {
 
       try {
         printTodoDetails(stoi(menu.commandValue));
-      } catch (...) {
+      }
+      catch (...) {
         app::printWarning("Invalid todo id!");
         u::wait();
       }
+      break;
+
+    case 14:
+      if (menu.commandValue == "") {
+        app::printWarning("Todo id cannot be empty!");
+        app::printWarning("Try \"rn <title>\" to remove note!");
+        u::wait();
+        continue;
+      }
+
+      removeNote(menu.commandValue);
+      break;
+
+    case 15:
+      undoNotebookDelete();
       break;
     default:
       app::printWarning("Invalid command!");
@@ -200,10 +220,12 @@ Account *registerAccount() {
   gr::Graph<string> *todos = new gr::Graph<string>();
   tr::BinaryTree<Note> *notes = new tr::BinaryTree<Note>();
   qu::Queue<Note> *notesQueue = new qu::Queue<Note>();
+  st::Stack<Note> *notesStack = new st::Stack<Note>();
   Account newAccount(id, username, password);
   newAccount.todos = todos;
   newAccount.notes = notes;
   newAccount.notesQueue = notesQueue;
+  newAccount.NotesStack = notesStack;
 
   accounts->addRecord(newAccount);
   return accounts->getRecord(id);
@@ -427,4 +449,33 @@ void printTodoDetails(const int id) {
   }
 
   u::wait("\nEnter to continue...");
+}
+
+void removeNote(const string &title) {
+  tr::Node<Note> *current = activeAccount->notes->search(title);
+  if (current == nullptr) {
+    app::printError("Invalid todo id!");
+    u::wait();
+    return;
+  }
+
+  Note toStack = current->data;
+  activeAccount->NotesStack->push(toStack);
+  activeAccount->notes->deleteNode(title);
+  app::printSuccess("Note removed!");
+  u::wait();
+}
+
+void undoNotebookDelete() {
+  if (activeAccount->NotesStack->isEmpty()) {
+    app::printError("Stack is empty!");
+    u::wait();
+    return;
+  }
+
+  Note currentNote = activeAccount->NotesStack->peek();
+  activeAccount->notes->insert(currentNote.title, currentNote);
+  activeAccount->NotesStack->pop();
+  app::printSuccess("Note restored!");
+  u::wait();
 }
