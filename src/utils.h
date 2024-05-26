@@ -2,7 +2,6 @@
 #include <iostream>
 #include <limits>
 #include <string>
-#include <ctime>
 #include "color_styles.h"
 
 using namespace std;
@@ -56,11 +55,6 @@ namespace u {
 
   void clearBuffer() {
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-  }
-
-  unsigned long long generateIdByTime(unsigned long long digits = 10) {
-    
-    return time(nullptr) % pow(10, digits + 1);
   }
 
   void wait(string text = "") {
