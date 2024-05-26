@@ -1,6 +1,6 @@
-# Programmers Notes CLI Application
+# Todoist - Programmers Notes CLI Application
 
-Programmers Notes is a Command Line Interface (CLI) application that allows users to manage their accounts, todos, and notebooks. This application provides a variety of features for creating and managing tasks and notes efficiently.
+Todoist is a Command Line Interface (CLI) application that allows users to manage their accounts, todos, and notebooks. This application provides a variety of features for creating and managing tasks and notes efficiently.
 
 ## Features
 
@@ -28,12 +28,12 @@ Programmers Notes is a Command Line Interface (CLI) application that allows user
 
 2. Compile the program:
     ```sh
-    g++ -o programmers_notes main.cpp src/*.cpp
+    g++ todoist.cpp -o todoist
     ```
 
 3. Run the program:
     ```sh
-    ./programmers_notes
+    ./todoist
     ```
 
 ## Usage
